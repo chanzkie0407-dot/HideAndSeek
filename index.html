@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 Wild Bounty Showdown — Final Fixed</title>
+<title>🔥 Wild Bounty Showdown — Official PG Soft Mechanics</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
   :root {
     --bgMain: #2B1708;
-    --panelBg: linear-gradient(180deg, #4A2E1A 0%, #301E10 100%);
     --reelBg: #1F1208;
     --gold: #FFD700;
     --goldDim: #B8860B;
@@ -18,6 +17,7 @@
     --textLight: #F5DEB3;
     --textDim: #C8B896;
     --borderGold: 3px solid #B8860B;
+    --goldFrameBorder: 3px solid #FFD700;
   }
   body {
     background: var(--bgMain);
@@ -26,7 +26,7 @@
     padding: 15px;
     text-align: center;
   }
-  .container { max-width: 640px; margin: 0 auto; }
+  .container { max-width: 680px; margin: 0 auto; }
 
   /* === MULTIPLIER BANNER === */
   .mult-banner {
@@ -35,16 +35,16 @@
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 15px;
-    display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;
+    display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;
   }
   .mult-label { font-weight: bold; margin-right: 8px; color: #FFF; }
   .mult-step {
     background: rgba(0,0,0,0.4);
-    padding: 6px 10px;
+    padding: 5px 8px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 14px;
-    min-width: 44px;
+    font-size: 13px;
+    min-width: 38px;
     border: 2px solid transparent;
   }
   .mult-step.active {
@@ -62,7 +62,7 @@
     to { transform: scale(1.1); }
   }
 
-  /* === REELS FRAME === */
+  /* === REELS FRAME — 6 REELS, TUMPAK SA 3-4-5-5-4-3 === */
   .reels-frame {
     background: linear-gradient(180deg, #905020 0%, #603010 100%);
     border: 5px solid var(--goldDim);
@@ -72,30 +72,42 @@
     box-shadow: 0 0 25px rgba(255,200,0,0.2);
   }
   .reels-container {
-    display: flex; gap: 6px; background: var(--reelBg);
+    display: flex; gap: 5px; background: var(--reelBg);
     padding: 8px; border-radius: 8px; overflow: hidden;
   }
   .reel {
-    flex: 1; height: 150px; background: #241408;
-    border-radius: 4px; overflow: hidden; position: relative;
+    flex: 1; border-radius: 4px; overflow: hidden; position: relative;
     border: 2px solid #6B4020;
+    background: #241408;
   }
+  .reel.r1 { height: 150px; } /* 3 rows */
+  .reel.r2 { height: 200px; } /* 4 rows */
+  .reel.r3 { height: 250px; } /* 5 rows */
+  .reel.r4 { height: 250px; } /* 5 rows */
+  .reel.r5 { height: 200px; } /* 4 rows */
+  .reel.r6 { height: 150px; } /* 3 rows */
   .reel-inner {
     position: absolute; width: 100%; top: 0; left: 0;
   }
   .symbol {
     height: 50px; display: flex; align-items: center; justify-content: center;
-    font-size: 26px; font-weight: bold; position: relative;
+    font-size: 24px; font-weight: bold; position: relative;
     border-bottom: 1px solid #402818;
+    transition: all 0.25s;
   }
   .symbol:last-child { border-bottom: none; }
   .symbol.gold-frame {
-    border: 3px solid var(--gold);
+    border: var(--goldFrameBorder);
     box-shadow: inset 0 0 10px rgba(255,215,0,0.4);
     background: rgba(255,215,0,0.1);
   }
+  .symbol.gold-transformed {
+    border: 3px solid #FFD700;
+    background: rgba(255,215,0,0.2);
+    color: #FFD700;
+  }
   .symbol.scatter { color: var(--gold); background: rgba(255,215,0,0.15); }
-  .symbol.wild { color: var(--gold); background: rgba(255,215,0,0.1); }
+  .symbol.wild { color: #FFD700; background: rgba(255,215,0,0.1); }
   .symbol.win-highlight {
     background: rgba(255,215,0,0.25);
     box-shadow: inset 0 0 12px rgba(255,215,0,0.4);
@@ -112,13 +124,14 @@
   .bet-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
   .bet-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
   .bet-val { font-weight: bold; color: var(--gold); }
-  .bet-controls { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .bet-controls { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .btn {
     padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
     font-size: 14px;
   }
   .btn-brown { background: var(--btnBrown); color: white; }
   .btn-yellow { background: var(--btnGold); color: #2B1708; }
+  .btn-green { background: linear-gradient(180deg, #32CD32 0%, #228B22 100%); color: white; }
   .toggle-bet {
     background: var(--btnBrown); color: white; border: none; border-radius: 6px;
     padding: 8px 16px; cursor: pointer; margin-bottom: 15px;
@@ -143,27 +156,34 @@
   .win-bar {
     background: rgba(255,215,0,0.15);
     border-radius: 8px; padding: 12px; margin-bottom: 15px;
-    font-size: 20px; font-weight: bold; color: var(--gold);
+    font-size: 18px; font-weight: bold; color: var(--gold);
     min-height: 50px;
     text-shadow: 0 0 8px rgba(255,215,0,0.5);
   }
   .win-bar.mega {
-    font-size: 24px;
+    font-size: 22px;
     background: rgba(255,215,0,0.25);
     box-shadow: 0 0 15px rgba(255,215,0,0.3);
   }
+  .cascade-indicator {
+    font-size: 13px; opacity: 0.8; margin-bottom: 8px; height: 20px;
+  }
 
-  /* === MAIN SPIN BUTTON — IISA LANG === */
+  /* === MAIN SPIN BUTTON === */
   .spin-btn {
     width: 100%; padding: 18px; border: none; border-radius: 10px;
     background: var(--btnGold); color: #2B1708;
-    font-size: 22px; font-weight: bold; cursor: pointer;
+    font-size: 20px; font-weight: bold; cursor: pointer;
     transition: transform 0.2s, opacity 0.2s;
   }
   .spin-btn:active { transform: scale(0.97); }
   .spin-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .spin-btn.fs-mode {
     background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
+    color: white;
+  }
+  .spin-btn.buy-mode {
+    background: linear-gradient(180deg, #FF6600 0%, #CC4400 100%);
     color: white;
   }
 </style>
@@ -174,27 +194,30 @@
   <!-- MULTIPLIER BANNER -->
   <div class="mult-banner">
     <span class="mult-label">3600 WAYS</span>
-    <div class="mult-step" data-level="0">×1</div>
-    <div class="mult-step" data-level="1">×2</div>
-    <div class="mult-step" data-level="2">×4</div>
-    <div class="mult-step" data-level="3">×8</div>
-    <div class="mult-step" data-level="4">×16</div>
-    <div class="mult-step" data-level="5">×32</div>
-    <div class="mult-step" data-level="6">×64</div>
-    <div class="mult-step" data-level="7">×128</div>
-    <div class="mult-step" data-level="8">×256</div>
-    <div class="mult-step" data-level="9">×512</div>
-    <div class="mult-step" data-level="10">×1024</div>
+    <div class="mult-step" data-m="1">×1</div>
+    <div class="mult-step" data-m="2">×2</div>
+    <div class="mult-step" data-m="4">×4</div>
+    <div class="mult-step" data-m="8">×8</div>
+    <div class="mult-step" data-m="16">×16</div>
+    <div class="mult-step" data-m="32">×32</div>
+    <div class="mult-step" data-m="64">×64</div>
+    <div class="mult-step" data-m="128">×128</div>
+    <div class="mult-step" data-m="256">×256</div>
+    <div class="mult-step" data-m="512">×512</div>
+    <div class="mult-step" data-m="1024">×1024</div>
   </div>
 
-  <!-- REELS -->
+  <!-- CASCADE INDICATOR -->
+  <div class="cascade-indicator" id="cascadeInfo"></div>
+
+  <!-- REELS — 6 REELS, 3-4-5-5-4-3 -->
   <div class="reels-frame">
     <div class="reels-container" id="reelsContainer"></div>
   </div>
 
   <!-- FS INDICATOR -->
-  <div class="fs-indicator" id="fsIndicator">
-    🎁 FREE SPINS ACTIVE — Remaining: <span id="fsRemain">0</span>
+  <div class="fs-indicator" id="fsStatus">
+    🎁 FREE SPINS — Remaining: <span id="fsRemain">0</span>
   </div>
 
   <!-- WIN DISPLAY -->
@@ -208,21 +231,17 @@
       <span style="color:var(--gold); cursor:pointer;" onclick="toggleBetPanel()">✕</span>
     </div>
     <div class="bet-row">
-      <span>Bet Size</span>
-      <span class="bet-val" id="betSize">₱1.00</span>
-    </div>
-    <div class="bet-row">
-      <span>Level</span>
-      <span class="bet-val" id="betLevel">×1</span>
-    </div>
-    <div class="bet-row">
       <span>Total Bet</span>
-      <span class="bet-val" id="totalBet">₱1.00</span>
+      <span class="bet-val" id="panelBet">₱1.00</span>
+    </div>
+    <div class="bet-row">
+      <span>Bonus Buy (75×)</span>
+      <span class="bet-val" id="buyCost">₱75.00</span>
     </div>
     <div class="bet-controls">
       <button class="btn btn-brown" onclick="changeBet(-1)">−</button>
       <button class="btn btn-brown" onclick="setMaxBet()">Max</button>
-      <button class="btn btn-yellow" onclick="confirmBet()">Confirm</button>
+      <button class="btn btn-green" onclick="buyFeature()">🎁 Buy FS</button>
       <button class="btn btn-brown" onclick="changeBet(+1)">+</button>
     </div>
   </div>
@@ -243,7 +262,7 @@
     </div>
   </div>
 
-  <!-- ✅ IISANG SPIN BUTTON LANG — WALANG HIWALAY NA FS BUTTON -->
+  <!-- SPIN BUTTON -->
   <button class="spin-btn" id="spinBtn" onclick="spin()">🎰 SPIN</button>
 
 </div>
@@ -262,50 +281,61 @@ function tone(freq, dur, type='sine', vol=0.3) {
   o.start(AC.currentTime); o.stop(AC.currentTime+dur);
 }
 function spinSound() { tone(200,.1,'tri',.2); setTimeout(()=>tone(300,.08),80); setTimeout(()=>tone(400,.08),160); }
-function winSound() { [523,659,784,1047].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.3),i*110)); }
-function bigWinSound() { [392,494,587,784,988,1175].map((f,i)=>setTimeout(()=>tone(f,.35,'sine',.4),i*80)); }
-function scatterSound() { [523,659,784,1047,1319].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.4),i*100)); }
+function cascadeSound() { tone(440,.1,'sine',.2); setTimeout(()=>tone(523,.1),100); }
+function winSound() { [523,659,784,1047].map((f,i)=>setTimeout(()=>tone(f,.25,'sine',.3),i*100)); }
+function scatterSound() { [523,659,784,1047,1319].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.4),i*90)); }
+function bigWinSound() { [392,494,587,784,988,1175,1319].map((f,i)=>setTimeout(()=>tone(f,.35,'sine',.4),i*70)); }
 
 // ==============================================
-// 🎰 SYMBOLS
+// 🎰 SYMBOLS — TUMPAK SA PG SOFT PAYTABLE
 // ==============================================
 const SYMBOLS = [
-  { id: 'Q', disp: 'Q', payout: 8, weight: 15 },
-  { id: 'K', disp: 'K', payout: 10, weight: 15 },
-  { id: 'J', disp: 'J', payout: 7, weight: 15 },
-  { id: 'A', disp: 'A', payout: 12, weight: 12 },
-  { id: '10', disp: '10', payout: 6, weight: 12 },
-  { id: 'hat', disp: '🤠', payout: 25, weight: 8 },
-  { id: 'gun', disp: '🔫', payout: 30, weight: 7 },
-  { id: 'bottle', disp: '🍾', payout: 35, weight: 6 },
-  { id: 'scarf', disp: '🎭', payout: 40, weight: 5 },
-  { id: 'WILD', disp: '💎', payout: 0, isWild: true, weight: 3 },
-  { id: 'SCATTER', disp: '🏜️', payout: 0, isScatter: true, weight: 2 }
+  { id: 'A', disp: 'A', payout: {3:1,4:2,5:5,6:10}, weight: 15 },
+  { id: 'K', disp: 'K', payout: {3:1,4:2,5:5,6:10}, weight: 15 },
+  { id: 'Q', disp: 'Q', payout: {3:1,4:2,5:3,6:5}, weight: 15 },
+  { id: 'J', disp: 'J', payout: {3:1,4:2,5:3,6:5}, weight: 15 },
+  { id: '10', disp: '10', payout: {3:1,4:2,5:3,6:5}, weight: 12 },
+  { id: 'boots', disp: '🥾', payout: {3:2,4:5,5:10,6:15}, weight: 10 },
+  { id: 'whiskey', disp: '🥃', payout: {3:2,4:5,5:10,6:20}, weight: 9 },
+  { id: 'hat', disp: '🤠', payout: {3:5,4:10,5:20,6:30}, weight: 8 },
+  { id: 'gun', disp: '🔫', payout: {3:5,4:10,5:20,6:30}, weight: 7 },
+  { id: 'bandit', disp: '🎭', payout: {3:10,4:20,5:50,6:50}, weight: 5 },
+  { id: 'WILD', disp: '💎', payout: null, isWild: true, weight: 3 },
+  { id: 'SCATTER', disp: '🏜️', payout: null, isScatter: true, weight: 2 }
 ];
 
+// Build weighted pool
 let weightedPool = [];
 SYMBOLS.forEach(sym => {
   for(let i=0; i<sym.weight; i++) weightedPool.push(sym);
 });
 
 // ==============================================
-// 🎮 BET SYSTEM — ₱1.00 hanggang ₱5,000
+// 📐 GRID — TUMPAK: 3-4-5-5-4-3
 // ==============================================
-const BET_LEVELS = [1, 2, 5, 10, 25, 50, 100, 200, 500, 1000, 2000, 5000]; // ✅ SIMULA ₱1.00
+const REEL_ROWS = [3,4,5,5,4,3]; // ✅ Opisyal na layout ng PG Soft
+const SYM_HEIGHT = 50;
+const MULTIPLIER_LEVELS = [1,2,4,8,16,32,64,128,256,512,1024];
+
+// ==============================================
+// 🎮 BET SYSTEM
+// ==============================================
+const BET_LEVELS = [1, 2, 5, 10, 25, 50, 100, 200, 500, 1000, 2000, 5000];
 
 const game = {
   balance: 1000.00,
-  betIndex: 0, // 0 = ₱1.00, hanggang 11 = ₱5,000
+  betIndex: 0,
   freeSpins: 0,
-  streak: 0,
   isSpinning: false,
-  reelCount: 5,
-  rows: 3,
-  symbolHeight: 50,
-  MAX_STREAK: 10,
+  isCascading: false,
+  currentMultiplier: 1,
+  baseMultiplierStart: 1,
+  fsMultiplierStart: 8, // ✅ Free Spins NAGSISIMULA SA ×8
+  reelStates: [],
+  totalWin: 0,
 
   get totalBet() { return BET_LEVELS[this.betIndex]; },
-  get multiplier() { return Math.pow(2, Math.min(this.streak, this.MAX_STREAK)); },
+  get buyCost() { return this.totalBet * 75; }, // ✅ Bonus Buy = 75×
 
   init() {
     this.load();
@@ -316,23 +346,37 @@ const game = {
   buildReels() {
     const c = document.getElementById('reelsContainer');
     c.innerHTML = '';
-    for (let r=0; r<this.reelCount; r++) {
+    this.reelStates = [];
+    
+    for (let r=0; r<6; r++) {
       const reel = document.createElement('div');
-      reel.className = 'reel'; reel.id = `reel-${r}`;
+      reel.className = `reel r${r+1}`;
+      reel.id = `reel-${r}`;
+      
       const inner = document.createElement('div');
-      inner.className = 'reel-inner'; inner.id = `inner-${r}`;
-      for (let i=0; i<this.rows+6; i++) {
+      inner.className = 'reel-inner';
+      inner.id = `inner-${r}`;
+      
+      const rows = REEL_ROWS[r];
+      this.reelStates[r] = [];
+      
+      // Extra symbols for smooth animation
+      for (let i=0; i<rows+4; i++) {
         const s = document.createElement('div');
-        s.className = 'symbol'; s.id = `s-${r}-${i}`;
+        s.className = 'symbol';
+        s.id = `s-${r}-${i}`;
         const sym = this.randSym();
         s.textContent = sym.disp;
         s.className = 'symbol'
           + (sym.isScatter ? ' scatter' : '')
           + (sym.isWild ? ' wild' : '')
-          + (Math.random() < 0.25 ? ' gold-frame' : '');
+          // ✅ Gold frames LANG sa reel 3 at 4 (index 2 at 3)
+          + ((r===2 || r===3) && !sym.isScatter && !sym.isWild && Math.random() < 0.3 ? ' gold-frame' : '');
         inner.appendChild(s);
+        this.reelStates[r].push({ ...sym, goldFrame: s.classList.contains('gold-frame') });
       }
-      reel.appendChild(inner); c.appendChild(reel);
+      reel.appendChild(inner);
+      c.appendChild(reel);
     }
   },
 
@@ -340,146 +384,239 @@ const game = {
     return weightedPool[Math.floor(Math.random() * weightedPool.length)];
   },
 
-  spinReels() {
-    if (this.isSpinning) return;
-
-    // ✅ HINDI PWEDE MAG-SPIN KAPAG NAUBOS NA ANG FS AT WALANG BALANSE PAMBILI NG TAYA
+  spin() {
+    if (this.isSpinning || this.isCascading) return;
+    
     const usingFS = this.freeSpins > 0;
     if (!usingFS) {
       if (this.balance < this.totalBet) {
-        alert('Insufficient balance! Top up or lower your bet.');
+        alert('Insufficient balance!');
         return;
       }
       this.balance -= this.totalBet;
+      // ✅ Base game: multiplier nagsisimula sa ×1
+      this.currentMultiplier = this.baseMultiplierStart;
     } else {
       this.freeSpins--;
+      // ✅ Free Spins: BAGONG IKOT = NAGBABALIK SA ×8
+      this.currentMultiplier = this.fsMultiplierStart;
     }
-
+    
     this.isSpinning = true;
+    this.totalWin = 0;
     spinSound();
     document.getElementById('winBar').textContent = '';
     document.getElementById('winBar').classList.remove('mega');
-
-    const result = [];
-    for (let r=0; r<this.reelCount; r++) {
-      result[r] = [];
-      for (let i=0; i<this.rows; i++) {
-        result[r].push(this.randSym());
-      }
-    }
-
-    // Animate reels
-    for (let r=0; r<this.reelCount; r++) {
-      const inner = document.getElementById(`inner-${r}`);
-      const shift = (Math.floor(Math.random() * 4) + 3) * this.symbolHeight;
-      
-      inner.style.transition = 'none';
-      inner.style.transform = `translateY(-${shift}px)`;
-      void inner.offsetHeight;
-      
-      // Fill visible area
-      for (let i=0; i<this.rows; i++) {
-        const sym = result[r][i];
-        const el = document.getElementById(`s-${r}-${i}`);
-        el.textContent = sym.disp;
-        el.className = 'symbol'
-          + (sym.isScatter ? ' scatter' : '')
-          + (sym.isWild ? ' wild' : '')
-          + (Math.random() < 0.25 ? ' gold-frame' : '');
-      }
-      
-      setTimeout(() => {
-        inner.style.transition = `transform ${1.0 + r * 0.2}s cubic-bezier(0.25, 0.8, 0.45, 1)`;
-        inner.style.transform = 'translateY(0)';
-      }, 50);
-    }
-
-    setTimeout(() => {
-      this.isSpinning = false;
-      this.evaluate(result, usingFS);
-    }, 2000);
+    document.getElementById('cascadeInfo').textContent = '';
+    
+    this.runCascadeLoop(usingFS);
   },
 
-  evaluate(reels, isFS) {
-    // Count Scatters
-    let scatterCount = 0;
-    for (let r=0; r<this.reelCount; r++) {
-      for (let i=0; i<this.rows; i++) {
-        if (reels[r][i].isScatter) scatterCount++;
+  async runCascadeLoop(isFS) {
+    let cascadeCount = 0;
+    let hasWin = true;
+    
+    while (hasWin && !this.isSpinning) {
+      if (cascadeCount > 0) {
+        cascadeSound();
+        document.getElementById('cascadeInfo').textContent = `Cascade ${cascadeCount} — Multiplier: ×${this.currentMultiplier}`;
       }
-    }
-
-    // Award Free Spins — ✅ NAKADAGDAG SA KASALUKUYANG
-    if (scatterCount >= 3) {
-      let fsAward = 0;
-      if (scatterCount === 3) fsAward = 10;
-      else if (scatterCount === 4) fsAward = 12;
-      else if (scatterCount === 5) fsAward = 15;
-      scatterSound();
-      this.freeSpins += fsAward;
-      setTimeout(() => alert(`🏜️ ${scatterCount} SCATTER!\n+${fsAward} FREE SPINS!`), 400);
-    }
-
-    // Calculate wins — 3600 Ways
-    let totalWin = 0;
-    for (let row=0; row<this.rows; row++) {
-      let matchLen = 0;
-      let refSym = null;
-      for (let r=0; r<this.reelCount; r++) {
-        const sym = reels[r][row];
-        if (sym.isWild) { matchLen++; continue; }
-        if (!refSym) { refSym = sym; matchLen++; }
-        else if (sym.id === refSym.id) { matchLen++; }
-        else break;
-      }
-      if (matchLen >= 3 && refSym) {
-        const payout = refSym.payout * this.totalBet / 10 * matchLen;
-        totalWin += payout;
-        for (let r=0; r<matchLen; r++) {
-          document.getElementById(`s-${r}-${row}`).classList.add('win-highlight');
+      
+      // Animate tumble down
+      for (let r=0; r<6; r++) {
+        const inner = document.getElementById(`inner-${r}`);
+        const rows = REEL_ROWS[r];
+        const shift = (Math.floor(Math.random() * 3) + 2) * SYM_HEIGHT;
+        
+        inner.style.transition = 'none';
+        inner.style.transform = `translateY(-${shift}px)`;
+        void inner.offsetHeight;
+        
+        // Generate new symbols for visible area
+        for (let i=0; i<rows; i++) {
+          const sym = this.randSym();
+          const el = document.getElementById(`s-${r}-${i}`);
+          const isGold = (r===2 || r===3) && !sym.isScatter && !sym.isWild && Math.random() < 0.3;
+          
+          el.textContent = sym.disp;
+          el.className = 'symbol'
+            + (sym.isScatter ? ' scatter' : '')
+            + (sym.isWild ? ' wild' : '')
+            + (isGold ? ' gold-frame' : '');
+          
+          this.reelStates[r][i] = { ...sym, goldFrame: isGold };
         }
+        
+        await new Promise(res => setTimeout(res, 30));
+        inner.style.transition = `transform ${0.8 + r * 0.15}s cubic-bezier(0.25, 0.8, 0.45, 1)`;
+        inner.style.transform = 'translateY(0)';
+      }
+      
+      await new Promise(res => setTimeout(res, 1000));
+      
+      // Evaluate wins
+      const result = this.evaluateCascade();
+      hasWin = result.hasWin;
+      
+      // ✅ Transform Gold Framed → Wild kung kasama sa panalo
+      if (hasWin && cascadeCount > 0) {
+        this.transformGoldFramesToWilds(result.winPositions);
+      }
+      
+      if (hasWin) {
+        this.totalWin += result.payout;
+        // ✅ Doble ang multiplier sa bawat sunod na cascade
+        const nextMult = Math.min(this.currentMultiplier * 2, 1024);
+        if (nextMult !== this.currentMultiplier) {
+          this.currentMultiplier = nextMult;
+        }
+        cascadeCount++;
       }
     }
-
-    if (totalWin > 0) {
-      if (this.streak < this.MAX_STREAK) this.streak++;
-      const mult = this.multiplier;
-      const finalWin = totalWin * mult;
-      this.balance += finalWin;
-
-      if (mult >= 128) {
-        document.getElementById('winBar').classList.add('mega');
-        bigWinSound();
-      } else winSound();
-
-      document.getElementById('winBar').innerHTML = `🎉 WIN: ₱${finalWin.toFixed(2)}`
-        + (mult > 1 ? ` @ ×${mult}` : '')
-        + (mult >= 1024 ? '<br>🔥🔥 MAX MULTIPLIER ×1024! 🔥🔥' : '');
-    } else {
-      this.streak = 0;
+    
+    // Check Scatters after final cascade
+    const scatterCount = this.countScatters();
+    if (scatterCount >= 3) {
+      scatterSound();
+      let award = 0;
+      if (scatterCount === 3) award = 10;
+      else if (scatterCount === 4) award = 12;
+      else if (scatterCount === 5) award = 14;
+      else if (scatterCount === 6) award = 15;
+      this.freeSpins += award;
+      setTimeout(() => alert(`🏜️ ${scatterCount} SCATTER!\n+${award} FREE SPINS!\nFS Multiplier starts at ×8!`), 500);
     }
-
+    
+    // Final payout
+    if (this.totalWin > 0) {
+      const finalAmount = this.totalWin * this.currentMultiplier;
+      this.balance += finalAmount;
+      
+      if (this.currentMultiplier >= 128) bigWinSound();
+      else winSound();
+      
+      const winBar = document.getElementById('winBar');
+      if (this.currentMultiplier >= 128) winBar.classList.add('mega');
+      winBar.innerHTML = `🎉 WIN: ₱${finalAmount.toFixed(2)} @ ×${this.currentMultiplier}`
+        + (this.currentMultiplier >= 1024 ? '<br>🔥🔥 MAX ×1024 — 5000x POTENTIAL! 🔥🔥' : '');
+    }
+    
     this.updateMultiplierUI();
     this.updateUI();
-
-    // ✅ KUNG MAY NATIRANG FS — AWTOMATIK NA IKOT SA IISANG BUTTON
+    this.isSpinning = false;
+    
+    // Auto-continue Free Spins
     if (this.freeSpins > 0) {
       setTimeout(() => {
         if (!this.isSpinning && this.freeSpins > 0) {
           resetHighlights();
-          this.spinReels();
+          this.spin();
         }
-      }, 1200);
+      }, 1000);
     }
+  },
+
+  evaluateCascade() {
+    let totalPayout = 0;
+    let hasWin = false;
+    const winPositions = [];
+    
+    // Check each row
+    for (let row=0; row<5; row++) {
+      let matchLen = 0;
+      let refSym = null;
+      let rowWin = false;
+      
+      for (let r=0; r<6; r++) {
+        if (row >= REEL_ROWS[r]) break;
+        
+        const sym = this.reelStates[r][row];
+        
+        if (sym.isWild) {
+          matchLen++;
+          continue;
+        }
+        
+        if (!refSym) {
+          refSym = sym;
+          matchLen++;
+        } else if (sym.id === refSym.id || sym.isWild) {
+          matchLen++;
+        } else {
+          break;
+        }
+      }
+      
+      if (matchLen >= 3 && refSym && refSym.payout) {
+        const payoutMult = refSym.payout[matchLen] || 0;
+        const payout = (this.totalBet / 10) * payoutMult;
+        totalPayout += payout;
+        hasWin = true;
+        rowWin = true;
+        
+        for (let r=0; r<matchLen; r++) {
+          const el = document.getElementById(`s-${r}-${row}`);
+          if (el) el.classList.add('win-highlight');
+          winPositions.push([r, row]);
+        }
+      }
+    }
+    
+    return { hasWin, payout: totalPayout, winPositions };
+  },
+
+  transformGoldFramesToWilds(winPositions) {
+    // ✅ Tanging nasa reel 3 at 4 na gintong balangkas na kasama sa panalo → nagiging Wild
+    winPositions.forEach(([r, row]) => {
+      if ((r === 2 || r === 3) && row < this.reelStates[r].length) {
+        const sym = this.reelStates[r][row];
+        if (sym.goldFrame && !sym.isWild && !sym.isScatter) {
+          sym.isWild = true;
+          const el = document.getElementById(`s-${r}-${row}`);
+          if (el) {
+            el.textContent = '💎';
+            el.classList.remove('gold-frame');
+            el.classList.add('gold-transformed', 'wild');
+          }
+        }
+      }
+    });
+  },
+
+  countScatters() {
+    let count = 0;
+    for (let r=0; r<6; r++) {
+      for (let i=0; i<REEL_ROWS[r]; i++) {
+        if (this.reelStates[r][i]?.isScatter) count++;
+      }
+    }
+    return count;
+  },
+
+  buyFeature() {
+    if (this.freeSpins > 0 || this.isSpinning) {
+      alert('Finish current session first!');
+      return;
+    }
+    if (this.balance < this.buyCost) {
+      alert(`Need ₱${this.buyCost.toFixed(2)} for Bonus Buy!`);
+      return;
+    }
+    this.balance -= this.buyCost;
+    this.freeSpins += 10;
+    alert(`🎁 BONUS BUY!\n10 FREE SPINS ADDED\nStarts at ×8 Multiplier!`);
+    toggleBetPanel();
+    this.updateUI();
   },
 
   updateMultiplierUI() {
     const steps = document.querySelectorAll('.mult-step');
-    steps.forEach((el, i) => {
+    steps.forEach(el => {
+      const m = parseInt(el.dataset.m);
       el.classList.remove('active', 'maxed');
-      if (i < this.streak + 1) {
+      if (m <= this.currentMultiplier) {
         el.classList.add('active');
-        if (i === this.MAX_STREAK) el.classList.add('maxed');
+        if (m === 1024) el.classList.add('maxed');
       }
     });
   },
@@ -489,26 +626,21 @@ const game = {
     document.getElementById('betDisplay').textContent = this.totalBet.toFixed(2);
     document.getElementById('fsCount').textContent = this.freeSpins;
     document.getElementById('fsRemain').textContent = this.freeSpins;
+    document.getElementById('panelBet').textContent = '₱' + this.totalBet.toFixed(2);
+    document.getElementById('buyCost').textContent = '₱' + this.buyCost.toFixed(2);
     
-    // Bet panel
-    document.getElementById('betSize').textContent = '₱' + this.totalBet.toFixed(2);
-    document.getElementById('betLevel').textContent = `Level ${this.betIndex + 1}`;
-    document.getElementById('totalBet').textContent = '₱' + this.totalBet.toFixed(2);
+    const fsStatus = document.getElementById('fsStatus');
+    fsStatus.style.display = this.freeSpins > 0 ? 'block' : 'none';
     
-    // FS Indicator
-    const fsInd = document.getElementById('fsIndicator');
-    fsInd.style.display = this.freeSpins > 0 ? 'block' : 'none';
-    
-    // ✅ IISANG SPIN BUTTON — MAGBABAGO NG ANYO KAPAG MAY FS
     const spinBtn = document.getElementById('spinBtn');
+    spinBtn.disabled = this.isSpinning || (this.balance < this.totalBet && this.freeSpins === 0);
+    
     if (this.freeSpins > 0) {
-      spinBtn.textContent = `🎰 FREE SPIN (${this.freeSpins})`;
+      spinBtn.textContent = `🎰 FS ×${this.currentMultiplier} (${this.freeSpins})`;
       spinBtn.classList.add('fs-mode');
-      spinBtn.disabled = this.isSpinning; // ✅ HINDI PWEDE PINDUTIN HABANG UMIKOT
     } else {
       spinBtn.textContent = '🎰 SPIN';
       spinBtn.classList.remove('fs-mode');
-      spinBtn.disabled = this.isSpinning; // ✅ HINDI PWEDE KAPAG WALANG BALANSE
     }
     
     this.save();
@@ -518,66 +650,55 @@ const game = {
     localStorage.setItem('wb_bal', this.balance);
     localStorage.setItem('wb_bet', this.betIndex);
     localStorage.setItem('wb_fs', this.freeSpins);
-    localStorage.setItem('wb_streak', this.streak);
   },
   load() {
     this.balance = parseFloat(localStorage.getItem('wb_bal')) || 1000.00;
-    this.betIndex = parseInt(localStorage.getItem('wb_bet')) || 0; // ✅ SIMULA SA ₱1.00
+    this.betIndex = parseInt(localStorage.getItem('wb_bet')) || 0;
     this.freeSpins = parseInt(localStorage.getItem('wb_fs')) || 0;
-    this.streak = parseInt(localStorage.getItem('wb_streak')) || 0;
-    this.updateMultiplierUI();
   }
 };
 
 // ==============================================
 // 🎯 CONTROLS
 // ==============================================
-function spin() {
-  if (game.isSpinning) return;
-  resetHighlights();
-  game.spinReels();
-}
+function spin() { game.spin(); }
 
 function changeBet(delta) {
   if (game.isSpinning || game.freeSpins > 0) {
     alert('Finish Free Spins first before changing bet!');
     return;
   }
-  let newIndex = game.betIndex + delta;
-  if (newIndex >= 0 && newIndex < BET_LEVELS.length) {
-    game.betIndex = newIndex;
+  const newIdx = game.betIndex + delta;
+  if (newIdx >= 0 && newIdx < BET_LEVELS.length) {
+    game.betIndex = newIdx;
     game.updateUI();
   }
 }
 
 function setMaxBet() {
   if (game.isSpinning || game.freeSpins > 0) {
-    alert('Finish Free Spins first before changing bet!');
+    alert('Finish Free Spins first!');
     return;
   }
   game.betIndex = BET_LEVELS.length - 1;
   game.updateUI();
 }
 
-function confirmBet() {
-  toggleBetPanel();
-}
-
+function buyFeature() { game.buyFeature(); }
 function toggleBetPanel() {
   const p = document.getElementById('betPanel');
   p.style.display = p.style.display === 'none' ? 'block' : 'none';
 }
 
 function resetHighlights() {
-  for (let r=0; r<game.reelCount; r++) {
-    for (let i=0; i<game.rows; i++) {
+  for (let r=0; r<6; r++) {
+    for (let i=0; i<REEL_ROWS[r]; i++) {
       const el = document.getElementById(`s-${r}-${i}`);
       if (el) el.classList.remove('win-highlight');
     }
   }
 }
 
-// START
 game.init();
 </script>
 </body>
