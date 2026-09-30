@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💎 Daan Tungo sa Kadakilaan</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+  :root { --good:#4CAF50; --warn:#FF9800; --bad:#f44336; --gold:#FFD700; --bg1:#1a1a2e; --bg2:#16213e; --card:#0f3460; }
+  body { background:linear-gradient(135deg, var(--bg1), var(--bg2)); min-height:100vh; color:white; padding:15px; }
+  .container { max-width:600px; margin:0 auto; }
+  header { text-align:center; margin-bottom:20px; }
+  h1 { font-size:22px; color:var(--gold); margin-bottom:5px; }
+  .subtitle { font-size:13px; opacity:0.7; }
+
+  /* KARMA BAR */
+  .karma-box { background:var(--card); border-radius:12px; padding:15px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+  .karma-top { display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold; }
+  .bar-bg { height:20px; background:#333; border-radius:10px; overflow:hidden; }
+  .bar-fill { height:100%; width:50%; background:var(--gold); transition:all 0.5s ease; border-radius:10px; }
+  .status-text { text-align:center; margin-top:8px; font-size:14px; }
+
+  /* KATANGAHAN */
+  .cat-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:20px; }
+  .cat-btn { background:var(--card); border:none; border-radius:10px; padding:15px; color:white; font-size:14px; cursor:pointer; transition:transform 0.2s; }
+  .cat-btn:hover { transform:scale(1.05); }
+  .cat-btn span { font-size:20px; display:block; margin-bottom:5px; }
+
+  /* TANONG */
+  .q-card { background:var(--card); border-radius:12px; padding:20px; margin-bottom:15px; display:none; }
+  .q-card.show { display:block; animation:fadeIn 0.3s; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+  .q-text { font-size:17px; margin-bottom:5px; line-height:1.5; }
+  .q-en { font-size:13px; opacity:0.6; margin-bottom:20px; font-style:italic; }
+  .opt { display:block; width:100%; background:#1a4a7a; border:none; border-radius:8px; padding:12px; margin:8px 0; color:white; text-align:left; cursor:pointer; transition:background 0.2s; }
+  .opt:hover { background:#2a6aaa; }
+  .feedback { padding:12px; border-radius:8px; margin:15px 0; display:none; }
+  .feedback.correct { display:block; background:rgba(76,175,80,0.2); border:1px solid var(--good); }
+  .feedback.wrong { display:block; background:rgba(244,67,54,0.2); border:1px solid var(--bad); }
+  .nav-btns { display:flex; gap:10px; margin-top:15px; }
+  .nav-btn { flex:1; padding:10px; border:none; border-radius:8px; background:#444; color:white; cursor:pointer; }
+  .nav-btn.primary { background:var(--good); }
+  .streak-box { text-align:center; margin-bottom:15px; font-size:14px; }
+  .streak-fire { color:var(--gold); font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>💎 Daan Tungo sa Kadakilaan</h1>
+    <p class="subtitle">Your Journey to Greatness</p>
+  </header>
+
+  <!-- KARMA PANEL -->
+  <div class="karma-box">
+    <div class="karma-top">
+      <span>Puntos ng Kabutihan</span>
+      <span id="karmaVal">50 / 100</span>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" id="karmaBar"></div>
+    </div>
+    <p class="status-text" id="statusText">🌱 Patuloy na Lumalago — Growing Stronger</p>
+    <div class="streak-box">
+      Sunod-sunod na araw: <span class="streak-fire" id="streakVal">0 araw 🔥</span>
+    </div>
+  </div>
+
+  <!-- PAGPILI NG KATEGORYA -->
+  <div id="catScreen">
+    <h3 style="text-align:center; margin-bottom:15px;">Pumili ng Aralin — Choose a Topic</h3>
+    <div class="cat-grid">
+      <button class="cat-btn" onclick="startQuiz('character')">
+        <span>💛</span> Pag-uugali<br><small>Character</small>
+      </button>
+      <button class="cat-btn" onclick="startQuiz('math')">
+        <span>🔢</span> Matematika<br><small>Math & Money</small>
+      </button>
+      <button class="cat-btn" onclick="startQuiz('law')">
+        <span>⚖️</span> Batas<br><small>Law & Rights</small>
+      </button>
+      <button class="cat-btn" onclick="startQuiz('science')">
+        <span>🔬</span> Agham<br><small>Science & Health</small>
+      </button>
+      <button class="cat-btn" onclick="startQuiz('future')">
+        <span>🎓</span> Kinabukasan<br><small>Your Future</small>
+      </button>
+      <button class="cat-btn" onclick="startQuiz('dailylife')">
+        <span>🏠</span> Araw-araw<br><small>Daily Life</small>
+      </button>
+    </div>
+  </div>
+
+  <!-- TANONG -->
+  <div class="q-card" id="qCard">
+    <p class="q-text" id="qTextTL"></p>
+    <p class="q-en" id="qTextEN"></p>
+    <div id="optionsBox"></div>
+    <div class="feedback" id="feedbackBox"></div>
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="goBack()">⬅️ Bumalik</button>
+      <button class="nav-btn primary" id="nextBtn" onclick="nextQ()" style="display:none;">Susunod ➡️</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// 💎 SISTEMA NG KARMA
+// ==============================================
+let karma = {
+  points: 50,
+  max: 100,
+  streak: 0,
+  init() {
+    this.load();
+    this.updateUI();
+  },
+  add(amount, msg) {
+    this.points = Math.min(this.max, this.points + amount);
+    this.showMsg(msg, amount > 0);
+    this.updateUI();
+    this.save();
+  },
+  subtract(amount, msg) {
+    this.points = Math.max(0, this.points - amount);
+    this.showMsg(msg, false);
+    this.updateUI();
+    this.save();
+  },
+  status() {
+    if (this.points >= 90) return "🏆 Halimbawa ng Kabutihan — Exemplary Character";
+    if (this.points >= 75) return "🌟 Mabuting Kapwa — Good Neighbor";
+    if (this.points >= 60) return "💛 Tapat at Maasahan — Honest & Trustworthy";
+    if (this.points >= 45) return "🌱 Patuloy na Lumalago — Growing Stronger";
+    if (this.points >= 30) return "⚠️ Kailangang Magbago — Needs Improvement";
+    return "💔 Pumili ng Mas Mabuting Daan — Choose Better";
+  },
+  updateUI() {
+    document.getElementById('karmaVal').textContent = `${this.points} / ${this.max}`;
+    document.getElementById('karmaBar').style.width = `${this.points}%`;
+    document.getElementById('statusText').textContent = this.status();
+    document.getElementById('streakVal').textContent = `${this.streak} araw 🔥`;
+    
+    // Kulay ng bar
+    const bar = document.getElementById('karmaBar');
+    if (this.points >= 75) bar.style.background = 'linear-gradient(90deg, #FFD700, #FFA500)';
+    else if (this.points >= 50) bar.style.background = '#4CAF50';
+    else if (this.points >= 30) bar.style.background = '#FF9800';
+    else bar.style.background = '#f44336';
+  },
+  showMsg(text, good) {
+    const fb = document.getElementById('feedbackBox');
+    fb.className = 'feedback ' + (good ? 'correct' : 'wrong');
+    fb.innerHTML = text;
+  },
+  save() {
+    localStorage.setItem('karmaPoints', this.points);
+    localStorage.setItem('karmaStreak', this.streak);
+  },
+  load() {
+    this.points = parseInt(localStorage.getItem('karmaPoints')) || 50;
+    this.streak = parseInt(localStorage.getItem('karmaStreak')) || 0;
+    // Check daily streak
+    const lastDate = localStorage.getItem('lastPlayDate');
+    const today = new Date().toDateString();
+    if (lastDate && lastDate !== today) {
+      const daysDiff = Math.floor((new Date() - new Date(lastDate)) / (1000*60*60*24));
+      if (daysDiff > 1) {
+        this.streak = 0; // broke streak
+      }
+    }
+    localStorage.setItem('lastPlayDate', today);
+    if (this.streak === 0 || lastDate !== today) {
+      this.streak++;
+    }
+  }
+};
+
+// ==============================================
+// 📚 MGA TANONG — 10+ bawat kategorya
+// ==============================================
+const QUESTIONS = {
+  character: [
+    {
+      tl: "Ano ang pinakamahalagang yaman ng isang tao?",
+      en: "What is a person's most important treasure?",
+      opts: [
+        { tl: "Mabuting pag-uugali", en: "Good character", correct:true,
+          fbTL: "Tumpak! Ang pag-uugali ay kasama mo habambuhay — hindi ito nabibili.",
+          fbEN: "Perfect! Character stays with you forever — money and things can be lost." },
+        { tl: "Maraming pera", en: "Lots of money" },
+        { tl: "Magandang damit", en: "Nice clothes" },
+        { tl: "Malaking bahay", en: "Big house" }
+      ],
+      goodPoints: 10, badPoints: 5
+    },
+    {
+      tl: "Nakita mong naiwan ang pitaka ng kaklase mo. Ano ang gagawin mo?",
+      en: "You see your classmate's wallet left behind. What do you do?",
+      opts: [
+        { tl: "Ibabalik agad kahit walang nakatingin", en: "Return it immediately even when no one is watching", correct:true,
+          fbTL: "Tapat ka! Iyan ang tunay na dangal! 💎",
+          fbEN: "Honesty is your greatest treasure! 💎" },
+        { tl: "Itatago ko muna", en: "I'll keep it for a while" },
+        { tl: "Hihintayin kong mag-alok ng gantimpala", en: "Wait until they offer a reward" },
+        { tl: "Kukunin ang pera tapos ibabalik ang pitaka", en: "Take the money then return the wallet" }
+      ],
+      goodPoints: 15, badPoints: 10
+    },
+    {
+      tl: "Nagkamali ka sa iba. Ano ang tamang gawin?",
+      en: "You made a mistake against someone. What should you do?",
+      opts: [
+        { tl: "Humingi ng tawad at itama ang mali", en: "Apologize and make it right", correct:true,
+          fbTL: "Ang pag-amin ay tanda ng katapangan! 💛",
+          fbEN: "Admitting fault shows courage! 💛" },
+        { tl: "Itatago ko para hindi magalit", en: "Hide it so they won't get angry" },
+        { tl: "Sisiin ko ang iba", en: "Blame someone else" },
+        { tl: "Ipagtatanggol ko ang sarili ko", en: "Defend myself no matter what" }
+      ],
+      goodPoints: 12, badPoints: 8
+    },
+    {
+      tl: "May nangangailangan ng tulong pero abala ka. Ano ang gagawin mo?",
+      en: "Someone needs help but you are busy. What do you do?",
+      opts: [
+        { tl: "Maglalaan ng oras o maghanap ng paraan para makatulong", en: "Make time or find a way to help", correct:true,
+          fbTL: "Ang pagtulong ay nagpapayaman sa puso! 🤝",
+          fbEN: "Helping enriches the heart! 🤝" },
+        { tl: "Sabihing abala ako", en: "Tell them I'm busy" },
+        { tl: "Igalangin ko muna ang sarili kong gawain", en: "Prioritize my own work first" },
+        { tl: "Ipagpag ko sila", en: "Ignore them" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "Alin sa mga sumusunod ang nagpapakita ng disiplina?",
+      en: "Which shows true discipline?",
+      opts: [
+        { tl: "Ginagawa ang tama kahit walang nakatingin", en: "Doing what's right even when no one is watching", correct:true,
+          fbTL: "Iyan ang tunay na kalayaan — ang maging panginoon ng sarili! ✨",
+          fbEN: "That is true freedom — mastering yourself! ✨" },
+        { tl: "Sumusunod kapag may nakatingin", en: "Obeying only when watched" },
+        { tl: "Ginagawa lang kapag may premyo", en: "Only doing it for a reward" },
+        { tl: "Pilit na pinipigilan ang sarili", en: "Forcing yourself reluctantly" }
+      ],
+      goodPoints: 15, badPoints: 8
+    }
+  ],
+  math: [
+    {
+      tl: "May ₱100 ka. Bumili ka ng pagkain na ₱35. Magkano ang natitira?",
+      en: "You have ₱100. You bought food for ₱35. How much is left?",
+      opts: [
+        { tl: "₱65", en: "₱65", correct:true,
+          fbTL: "Tumpak! Ang pagbilang ng pera ay susi sa maayos na buhay! 💰",
+          fbEN: "Correct! Managing money is a key life skill! 💰" },
+        { tl: "₱75", en: "₱75" },
+        { tl: "₱55", en: "₱55" },
+        { tl: "₱135", en: "₱135" }
+      ],
+      goodPoints: 10, badPoints: 5
+    },
+    {
+      tl: "Bakit mahalagang magtabi ng kahit kaunting halaga mula sa kinikita?",
+      en: "Why save even a little from what you earn?",
+      opts: [
+        { tl: "Pangangailangan sa hinaharap", en: "For future needs and emergencies", correct:true,
+          fbTL: "Ang ipon ay panangga sa bagyo ng buhay! ☔",
+          fbEN: "Savings are your shield against life's storms! ☔" },
+        { tl: "Para yumaman agad", en: "To get rich quickly" },
+        { tl: "Para pambili ng bagong laruan", en: "To buy new toys" },
+        { tl: "Hindi naman kailangan", en: "It's not really needed" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "Kumikita ka ng ₱50 sa isang araw. Magkano ang makokolekta mo sa loob ng 5 araw?",
+      en: "You earn ₱50 a day. How much in 5 days?",
+      opts: [
+        { tl: "₱250", en: "₱250", correct:true,
+          fbTL: "Ang pagsisikap araw-araw ay lumalago! 🌱",
+          fbEN: "Daily effort adds up and grows! 🌱" },
+        { tl: "₱200", en: "₱200" },
+        { tl: "₱300", en: "₱300" },
+        { tl: "₱55", en: "₱55" }
+      ],
+      goodPoints: 10, badPoints: 5
+    },
+    {
+      tl: "Mayroon kang ipon na ₱500. Ginastos mo ang kalahati. Magkano ang natira?",
+      en: "You saved ₱500. You spent half. How much remains?",
+      opts: [
+        { tl: "₱250", en: "₱250", correct:true,
+          fbTL: "Alamin kung saan napupunta ang bawat piso! 💵",
+          fbEN: "Know where every peso goes! 💵" },
+        { tl: "₱300", en: "₱300" },
+        { tl: "₱200", en: "₱200" },
+        { tl: "₱100", en: "₱100" }
+      ],
+      goodPoints: 10, badPoints: 5
+    },
+    {
+      tl: "Alin ang mas matalino?",
+      en: "Which is wiser?",
+      opts: [
+        { tl: "Unahin ang pangangailangan bago ang kagustuhan", en: "Needs before wants", correct:true,
+          fbTL: "Iyan ang pundasyon ng maunlad na buhay! 🏠",
+          fbEN: "That is the foundation of a prosperous life! 🏠" },
+        { tl: "Bili agad kapag may pera", en: "Buy immediately when you have money" },
+        { tl: "Ipagpaliban ang pagkain para sa bagay na gusto", en: "Skip meals for things you want" },
+        { tl: "Umasa sa iba", en: "Depend on others" }
+      ],
+      goodPoints: 15, badPoints: 8
+    }
+  ],
+  law: [
+    {
+      tl: "Bakit may batas?",
+      en: "Why do we have laws?",
+      opts: [
+        { tl: "Upang magkaroon ng kaayusan at proteksyon ang lahat", en: "For order and protection of everyone", correct:true,
+          fbTL: "Ang batas ay hindi hadlang — ito ay kalasag ng mahihina! ⚖️",
+          fbEN: "Laws are not obstacles — they are shields for the vulnerable! ⚖️" },
+        { tl: "Para maghari ang makapangyarihan", en: "So the powerful can rule" },
+        { tl: "Para magbawal ang lahat", en: "To ban everything" },
+        { tl: "Pang-iba lang", en: "Just for others to follow" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "May nakagawa ng mali sa iyo. Ano ang tamang gawin?",
+      en: "Someone wronged you. What is the right thing to do?",
+      opts: [
+        { tl: "Humingi ng tulong sa kinauukulan at huwag gumanti", en: "Seek help from authorities and do not retaliate", correct:true,
+          fbTL: "Ang katarungan ay hindi gantihan! ✨",
+          fbEN: "Justice is not revenge! ✨" },
+        { tl: "Gumanti rin", en: "Get back at them too" },
+        { tl: "Manahimik na lang", en: "Stay silent and endure" },
+        { tl: "Ipagkalat ang kahihiyan nila", en: "Shame them publicly" }
+      ],
+      goodPoints: 15, badPoints: 10
+    },
+    {
+      tl: "Ano ang karapatan ng bawat bata?",
+      en: "What is every child's right?",
+      opts: [
+        { tl: "Makapag-aral, magkaroon ng pangangalaga, at maging ligtas", en: "Education, care, and safety", correct:true,
+          fbTL: "Ang karapatan ay may kaakibat na tungkulin! 📚",
+          fbEN: "Every right comes with a responsibility! 📚" },
+        { tl: "Laging sinusunod ang gusto", en: "Always getting what you want" },
+        { tl: "Walang ginagawa", en: "Doing nothing all day" },
+        { tl: "Lahat ng hiling ay matupad", en: "Every wish granted" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "Nakita mong lumabag sa batas ang kilalang tao. Ano ang gagawin mo?",
+      en: "You see someone well-known breaking the law. What do you do?",
+      opts: [
+        { tl: "Ang batas ay para sa lahat — ipaalam sa tamang paraan", en: "Laws apply to all — report properly", correct:true,
+          fbTL: "Walang sinuman ang higit sa batas! ⚖️✨",
+          fbEN: "No one is above the law! ⚖️✨" },
+        { tl: "Hayaan mo, sikat sila", en: "Let it go, they're famous" },
+        { tl: "Ikalat sa social media agad", en: "Post it online immediately" },
+        { tl: "Gayahin mo rin", en: "Copy them too" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Ano ang ibig sabihin ng 'may karapatan, may tungkulin'?",
+      en: "What does 'with rights come responsibilities' mean?",
+      opts: [
+        { tl: "Ginagamit ang kalayaan nang hindi nakakasakit sa iba", en: "Freedom means not harming others", correct:true,
+          fbTL: "Ang tunay na kalayaan ay may hangganan — sa kapakanan ng lahat! 🕊️",
+          fbEN: "True freedom has limits — for everyone's good! 🕊️" },
+        { tl: "Kapag may karapatan, pwede mong gawin ang lahat", en: "With rights you can do anything" },
+        { tl: "Ang tungkulin ay para sa iba", en: "Duties are only for others" },
+        { tl: "Hindi magkaugnay ang dalawa", en: "They are not connected" }
+      ],
+      goodPoints: 15, badPoints: 8
+    }
+  ],
+  science: [
+    {
+      tl: "Bakit mahalagang alagaan ang ating katawan?",
+      en: "Why care for our body?",
+      opts: [
+        { tl: "Ito ang tanging tahanan ng ating pagkatao", en: "It is the only home our soul has", correct:true,
+          fbTL: "Ang kalusugan ay kayamanang hindi nabibili! 💪",
+          fbEN: "Health is wealth that cannot be bought! 💪" },
+        { tl: "Para maganda tignan", en: "To look good" },
+        { tl: "Para purihin ng iba", en: "To be praised by others" },
+        { tl: "Kailangan lang kapag may sakit", en: "Only when sick" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "Ano ang nagpapatibay sa ating isipan?",
+      en: "What strengthens our mind?",
+      opts: [
+        { tl: "Pagbabasa, pagtatanong, at pag-aaral araw-araw", en: "Reading, asking questions, daily learning", correct:true,
+          fbTL: "Ang isipan ay lumalago kapag ginagamit! 🧠✨",
+          fbEN: "The mind grows when used! 🧠✨" },
+        { tl: "Panonood lang ng TV", en: "Only watching TV" },
+        { tl: "Pag-alam na sa lahat", en: "Thinking you already know everything" },
+        { tl: "Pag-iwas sa hamon", en: "Avoiding challenges" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "Bakit kailangang alagaan ang kalikasan?",
+      en: "Why protect nature?",
+      opts: [
+        { tl: "Ito ang ating tahanan — kapag nasira, wala nang matitirhan", en: "It's our home — if destroyed, nowhere to go", correct:true,
+          fbTL: "Ang kalikasan ay pamana — ingatan para sa susunod na henerasyon! 🌍🌱",
+          fbEN: "Nature is an inheritance — preserve it for the next generation! 🌍🌱" },
+        { tl: "Para maganda ang litrato", en: "For nice photos" },
+        { tl: "Gawain ng iba", en: "Someone else's job" },
+        { tl: "May sapat na yaman pa naman", en: "There's still plenty of resources" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Alin ang nagpapakita ng pagiging matalino?",
+      en: "What shows true wisdom?",
+      opts: [
+        { tl: "Alam na marami pa siyang hindi alam", en: "Knowing how much you still don't know", correct:true,
+          fbTL: "Ang pagpapakumbaba ay pinto sa karunungan! 🚪✨",
+          fbEN: "Humility is the doorway to wisdom! 🚪✨" },
+        { tl: "Hindi nagtatanong para hindi mukhang mangmang", en: "Not asking to avoid looking foolish" },
+        { tl: "Laging tama ang sinasabi", en: "Always claiming to be right" },
+        { tl: "Tinatakpan ang kamalian", en: "Hiding mistakes" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Bakit mahalaga ang pagtulog at tamang pagkain?",
+      en: "Why are sleep and proper food important?",
+      opts: [
+        { tl: "Upang lumakas ang katawan at gumaling ang isip", en: "For strong body and sharp mind", correct:true,
+          fbTL: "Ang katawan ay parang makina — kailangan ng pahinga at tamang panggatong! ⚡",
+          fbEN: "Your body is like a machine — needs rest and good fuel! ⚡" },
+        { tl: "Para hindi pagalitan", en: "So you won't be scolded" },
+        { tl: "Panghabang panahon lang", en: "Just while growing" },
+        { tl: "Pwede naman palitan", en: "Can be replaced later" }
+      ],
+      goodPoints: 12, badPoints: 6
+    }
+  ],
+  future: [
+    {
+      tl: "Paano mo makakamit ang iyong pangarap?",
+      en: "How do you achieve your dreams?",
+      opts: [
+        { tl: "Maliit na hakbang araw-araw nang hindi sumusuko", en: "Small steps every day without giving up", correct:true,
+          fbTL: "Ang tagumpay ay hindi sa biglaang pagtalon — kundi sa patuloy na paglakad! 🚶‍♂️🏔️",
+          fbEN: "Success isn't one big leap — it's walking step by step! 🚶‍♂️🏔️" },
+        { tl: "Maghihintay hanggang may pagkakataon", en: "Wait for luck to come" },
+        { tl: "Umasa sa iba", en: "Depend on others" },
+        { tl: "Mabilis na paraan kahit hindi tama", en: "Quick ways even if not right" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Ano ang pinakamahalagang aral na dadalhin mo habambuhay?",
+      en: "What is the most important lesson for life?",
+      opts: [
+        { tl: "Ang pagiging mabuting tao higit sa lahat", en: "Being a good person above all else", correct:true,
+          fbTL: "Iyan ang tanging yaman na dadalhin mo hanggang sa huli! 💎✨",
+          fbEN: "That is the only treasure you carry to the very end! 💎✨" },
+        { tl: "Pagiging mayaman", en: "Becoming rich" },
+        { tl: "Pagiging sikat", en: "Becoming famous" },
+        { tl: "Pagiging makapangyarihan", en: "Being powerful" }
+      ],
+      goodPoints: 20, badPoints: 10
+    },
+    {
+      tl: "Nabigo ka sa sinubukan mo. Ano ang gagawin mo?",
+      en: "You failed at something you tried. What do you do?",
+      opts: [
+        { tl: "Matuto, magbago, at subukang muli", en: "Learn, adjust, and try again", correct:true,
+          fbTL: "Ang kabiguan ay hindi katapusan — ito ay aral! 💪🔥",
+          fbEN: "Failure is not the end — it is a lesson! 💪🔥" },
+        { tl: "Hindi na susubok ulit", en: "Never try again" },
+        { tl: "Sisiin ang iba", en: "Blame others" },
+        { tl: "Itatago ang nararamdaman", en: "Hide your feelings" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Ano ang ibig sabihin ng 'maging kapaki-pakinabang'?",
+      en: "What does it mean to be 'useful'?",
+      opts: [
+        { tl: "May naitutulong sa kapwa at sa lipunan", en: "Contributing to others and society", correct:true,
+          fbTL: "Ang halaga mo ay hindi sa kung ano ang mayroon ka — kundi sa kung ano ang naibibigay mo! 💛",
+          fbEN: "Your worth isn't what you have — it's what you give! 💛" },
+        { tl: "Mabilis gumawa ng trabaho", en: "Finishing work quickly" },
+        { tl: "Maraming alam", en: "Knowing many things" },
+        { tl: "Laging inuuna ang sarili", en: "Putting yourself first always" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Sino ang may hawak ng iyong kinabukasan?",
+      en: "Who holds your future?",
+      opts: [
+        { tl: "Ikaw — sa bawat pagpili mo araw-araw", en: "You — through your daily choices", correct:true,
+          fbTL: "Ang bawat maliit na pagpili ngayon ay humuhubog sa bukas! 🌅✨",
+          fbEN: "Every small choice today shapes tomorrow! 🌅✨" },
+        { tl: "Ang ibang tao", en: "Other people" },
+        { tl: "Swerte", en: "Luck" },
+        { tl: "Hindi ko alam", en: "I don't know" }
+      ],
+      goodPoints: 20, badPoints: 10
+    }
+  ],
+  dailylife: [
+    {
+      tl: "Paano mo igagalang ang iyong mga magulang at nakatatanda?",
+      en: "How do you show respect to parents and elders?",
+      opts: [
+        { tl: "Makinig, tumulong, at magmagalang sa salita at gawa", en: "Listen, help, and speak politely", correct:true,
+          fbTL: "Ang paggalang ay pagpapakita ng pagmamahal! ❤️",
+          fbEN: "Respect is love in action! ❤️" },
+        { tl: "Sumunod lang kapag pinagalitan", en: "Obey only when scolded" },
+        { tl: "Tumango pero hindi gagawin", en: "Nod but not do it" },
+        { tl: "Iwasan sila", en: "Avoid them" }
+      ],
+      goodPoints: 12, badPoints: 6
+    },
+    {
+      tl: "May kaibigan kang gumagawa ng mali. Ano ang gagawin mo?",
+      en: "A friend is doing wrong. What do you do?",
+      opts: [
+        { tl: "Sabihin nang mahinahon at tulungang magbago", en: "Kindly tell them and help them change", correct:true,
+          fbTL: "Ang tunay na kaibigan ay hindi sumasang-ayon sa mali — tinutulungan kang maging mabuti! 🤝✨",
+          fbEN: "A true friend doesn't agree with wrong — they help you be better! 🤝✨" },
+        { tl: "Makikisama na lang", en: "Just go along with it" },
+        { tl: "Iiwasan na lang sila", en: "Avoid them" },
+        { tl: "Ikalat sa iba", en: "Tell everyone else" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Paano ka magiging mabuting halimbawa sa iba?",
+      en: "How do you become a good example?",
+      opts: [
+        { tl: "Gawin muna ang tama bago magsabi sa iba", en: "Do right yourself before telling others", correct:true,
+          fbTL: "Ang gawa ay mas malakas kaysa sa salita! 👀✨",
+          fbEN: "Actions speak louder than words! 👀✨" },
+        { tl: "Magsabi kung ano ang dapat gawin", en: "Tell others what to do" },
+        { tl: "Magpanggap na mabuti", en: "Pretend to be good" },
+        { tl: "Iba ang gawa sa sinasabi", en: "Say one thing, do another" }
+      ],
+      goodPoints: 15, badPoints: 8
+    },
+    {
+      tl: "Nakikipaglaro ka sa kapwa. Ano ang tamang ugali?",
+      en: "Playing with others. What is the right attitude?",
+      opts: [
+        { tl: "Panalo man o talo — maging magalang pa rin", en: "Win or lose — always be respectful", correct:true,
+          fbTL: "Ang tunay na tagumpay ay nasa pag-uugali, hindi sa iskor! 🏆",
+          fbEN: "True victory is in character, not the score! 🏆" },
+        { tl: "Magalit kapag natalo", en: "Get angry when losing" },
+        { tl: "Mandaya para manalo", en: "Cheat to win" },
+        { tl: "Hindi papayag na matalo", en: "Refuse to accept defeat" }
+      ],
+      goodPoints: 12, badPoints: 8
+    },
+    {
+      tl: "Ano ang ibig sabihin ng 'magpakatotoo'?",
+      en: "What does 'being true to yourself' mean?",
+      opts: [
+        { tl: "Hindi nagpapanggap — kung sino ka, iyon ang ipakita", en: "Not pretending — show who you truly are", correct:true,
+          fbTL: "Mas madaling maging mabuti kapag ikaw mismo! 💎✨",
+          fbEN: "It's easier to be good when you're being yourself! 💎✨" },
+        { tl: "Gayahin ang iba", en: "Copy others" },
+        { tl: "Magpanggap na mas magaling", en: "Pretend to be better" },
+        { tl: "Itago ang sarili", en: "Hide yourself" }
+      ],
+      goodPoints: 15, badPoints: 8
+    }
+  ]
+};
+
+// ==============================================
+// 🎮 LARO LOGIC
+// ==============================================
+let currentCat = null;
+let currentQIndex = 0;
+let answered = false;
+
+function startQuiz(category) {
+  currentCat = category;
+  currentQIndex = 0;
+  answered = false;
+  document.getElementById('catScreen').style.display = 'none';
+  document.getElementById('qCard').classList.add('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  const qs = QUESTIONS[currentCat];
+  if (currentQIndex >= qs.length) {
+    endQuiz();
+    return;
+  }
+  
+  const q = qs[currentQIndex];
+  document.getElementById('qTextTL').textContent = q.tl;
+  document.getElementById('qTextEN').textContent = q.en;
+  
+  const optsBox = document.getElementById('optionsBox');
+  optsBox.innerHTML = '';
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<strong>${String.fromCharCode(65+idx)}.</strong> ${opt.tl}<br><small style="opacity:0.7">${opt.en}</small>`;
+    btn.onclick = () => selectOption(idx);
+    optsBox.appendChild(btn);
+  });
+  
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+  answered = false;
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  
+  const q = QUESTIONS[currentCat][currentQIndex];
+  const chosen = q.opts[idx];
+  const isCorrect = chosen.correct === true;
+  
+  // Ipakita ang kulay sa opsyon
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach((o, i) => {
+    o.style.pointerEvents = 'none';
+    if (q.opts[i].correct) o.style.background = 'rgba(76,175,80,0.3)';
+    else if (i === idx && !isCorrect) o.style.background = 'rgba(244,67,54,0.3)';
+  });
+  
+  // Ipakita ang tugon at ilapat ang Karma
+  const fb = document.getElementById('feedbackBox');
+  fb.style.display = 'block';
+  
+  if (isCorrect) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = `<strong>✅ Tumpak!</strong><br>${chosen.fbTL}<br><small>${chosen.fbEN}</small>`;
+    karma.add(q.goodPoints, `+${q.goodPoints} — Tamang sagot!`);
+  } else {
+    const correctOpt = q.opts.find(o => o.correct);
+    fb.className = 'feedback wrong';
+    fb.innerHTML = `<strong>❌ Subukan muli!</strong><br>Ang tamang sagot: <em>${correctOpt.tl}</em><br><small>${correctOpt.fbEN}</small>`;
+    karma.subtract(q.badPoints, `-${q.badPoints} — Kailangan pang pag-aralan`);
+  }
+  
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function nextQ() {
+  currentQIndex++;
+  showQuestion();
+}
+
+function goBack() {
+  document.getElementById('qCard').classList.remove('show');
+  document.getElementById('catScreen').style.display = 'block';
+  currentCat = null;
+}
+
+function endQuiz() {
+  document.getElementById('qTextTL').textContent = '🎉 Tapos na ang Aralin!';
+  document.getElementById('qTextEN').textContent = 'You completed this topic!';
+  document.getElementById('optionsBox').innerHTML = '';
+  document.getElementById('feedbackBox').style.display = 'block';
+  document.getElementById('feedbackBox').className = 'feedback correct';
+  document.getElementById('feedbackBox').innerHTML = 
+    `<strong>Napakahusay mo!</strong><br>Ang iyong katayuan: <strong>${karma.points}/100</strong><br>Patuloy lang sa pag-aaral! 🌟`;
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+// SIMULAN
+karma.init();
+</script>
+</body>
+</html>
