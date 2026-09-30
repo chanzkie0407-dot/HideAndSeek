@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 Hide & Seek — Magtago Ka!</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif; }
+  body { background:#1a1a2e; display:flex; flex-direction:column; align-items:center; padding:20px; min-height:100vh; }
+  h1 { color:#ffd700; margin-bottom:10px; text-align:center; }
+  .info { color:#eee; margin-bottom:15px; text-align:center; max-width:600px; }
+  .status { display:flex; gap:30px; margin:10px 0; padding:10px 20px; background:#16213e; border-radius:10px; color:white; }
+  canvas { background:#f0e6d2; border:4px solid #8b4513; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+  .controls { margin-top:15px; color:#ddd; text-align:center; line-height:1.6; }
+  .key { display:inline-block; background:#333; color:#fff; padding:4px 8px; border-radius:4px; margin:2px; font-weight:bold; }
+  button { margin-top:15px; padding:10px 25px; font-size:18px; background:#ffd700; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
+  button:hover { background:#ffed4e; }
+</style>
+</head>
+<body>
+
+<h1>🎮 HIDE & SEEK — Magtago Ka! 🙈📦</h1>
+<div class="info">
+  <strong>1 = Manghuhuli 🔍</strong> | <strong>1-3 Manlalaro na nagtatago 📦🪑</strong><br>
+  Magmukhang kahon o upuan para hindi ka makita! Tumakbo kapag malapit na! 😂
+</div>
+
+<div class="status">
+  <div>⏱️ Oras: <span id="time">60</span>s</div>
+  <div>🔍 Nahanap: <span id="found">0</span>/<span id="totalHiders">3</span></div>
+  <div id="roleInfo"></div>
+</div>
+
+<canvas id="gameCanvas" width="800" height="500"></canvas>
+
+<div class="controls">
+  <p><strong>Manghuhuli:</strong> <span class="key">↑↓←→</span> Lumakad | <span class="key">SPACE</span> Hanapin / Tuklasin</p>
+  <p><strong>Nagtatago:</strong> <span class="key">WASD</span> — Manatiling nakatayo para magmukhang gamit! Gumalaw lang kapag kailangan! 😏</p>
+</div>
+
+<button id="startBtn">🔁 Simulan Laro</button>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// LARO SETTINGS
+const GAME_DURATION = 60; // segundo
+let gameRunning = false;
+let timeLeft = GAME_DURATION;
+let timer;
+
+// URI NG NAKATAGO
+const HIDER_TYPES = {
+  BOX: { w:50, h:50, color:'#8b4513', name:'Kahon' },
+  CHAIR: { w:40, h:60, color:'#654321', name:'Upuan' },
+  BAG: { w:35, h:40, color:'#a0522d', name:'Bag' }
+};
+
+// MGA BAGAY SA PALIGID (mga tunay na gamit para magtago)
+let props = [];
+function spawnProps() {
+  props = [];
+  const types = Object.values(HIDER_TYPES);
+  for(let i=0; i<12; i++) {
+    const type = types[Math.floor(Math.random()*types.length)];
+    props.push({
+      x: 80 + Math.random()*(canvas.width-160),
+      y: 80 + Math.random()*(canvas.height-160),
+      w: type.w,
+      h: type.h,
+      color: type.color
+    });
+  }
+}
+
+// MANLALARO
+const seeker = {
+  x: 400, y: 40, w:35, h:45, speed:4,
+  color:'#e74c3c', found:false,
+  keys: { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', action:' ' }
+};
+
+const hiderConfigs = [
+  { control:{up:'w',down:'s',left:'a',right:'d'}, type:HIDER_TYPES.BOX, name:'Manlalaro 2' },
+  { control:{up:'r',down:'f',left:'q',right:'e'}, type:HIDER_TYPES.CHAIR, name:'Manlalaro 3' },
+  { control:{up:'t',down:'g',left:'y',right:'h'}, type:HIDER_TYPES.BAG, name:'Manlalaro 4' }
+];
+
+let hiders = [];
+function initHiders() {
+  hiders = hiderConfigs.map((cfg, i) => ({
+    x: 100 + i*200,
+    y: 150 + Math.random()*200,
+    w: cfg.type.w,
+    h: cfg.type.h,
+    speed: 3.5,
+    color: cfg.type.color,
+    typeName: cfg.type.name,
+    name: cfg.name,
+    control: cfg.control,
+    isMoving: false,
+    found: false,
+    lastX:0, lastY:0
+  }));
+}
+
+// PAGPINDOT NG SUSI
+const keysPressed = {};
+document.addEventListener('keydown', e=>{
+  keysPressed[e.key.toLowerCase()] = true;
+  keysPressed[e.key] = true;
+});
+document.addEventListener('keyup', e=>{
+  keysPressed[e.key.toLowerCase()] = false;
+  keysPressed[e.key] = false;
+});
+
+// GALAW NG MANLALARO
+function updateSeeker() {
+  if(!gameRunning) return;
+  if(keysPressed[seeker.keys.up]) seeker.y -= seeker.speed;
+  if(keysPressed[seeker.keys.down]) seeker.y += seeker.speed;
+  if(keysPressed[seeker.keys.left]) seeker.x -= seeker.speed;
+  if(keysPressed[seeker.keys.right]) seeker.x += seeker.speed;
+  
+  // HANGGANAN
+  seeker.x = Math.max(0, Math.min(canvas.width-seeker.w, seeker.x));
+  seeker.y = Math.max(0, Math.min(canvas.height-seeker.h, seeker.y));
+  
+  // TUKLASIN KAPAG PININDOT ANG SPACE
+  if(keysPressed[seeker.keys.action]) {
+    revealNearby();
+  }
+}
+
+function updateHiders() {
+  hiders.forEach(hider => {
+    if(!gameRunning || hider.found) return;
+    
+    hider.lastX = hider.x;
+    hider.lastY = hider.y;
+    
+    if(keysPressed[hider.control.up]) hider.y -= hider.speed;
+    if(keysPressed[hider.control.down]) hider.y += hider.speed;
+    if(keysPressed[hider.control.left]) hider.x -= hider.speed;
+    if(keysPressed[hider.control.right]) hider.x += hider.speed;
+    
+    hider.isMoving = (hider.x !== hider.lastX || hider.y !== hider.lastY);
+    
+    // HANGGANAN
+    hider.x = Math.max(0, Math.min(canvas.width-hider.w, hider.x));
+    hider.y = Math.max(0, Math.min(canvas.height-hider.h, hider.y));
+  });
+}
+
+// PAGTUKLAS
+function revealNearby() {
+  const DETECT_RANGE = 60;
+  hiders.forEach(hider => {
+    if(hider.found) return;
+    const dx = (seeker.x + seeker.w/2) - (hider.x + hider.w/2);
+    const dy = (seeker.y + seeker.h/2) - (hider.y + hider.h/2);
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    
+    // Mas madaling makita kapag gumagalaw!
+    const movingBonus = hider.isMoving ? 35 : 0;
+    if(dist < DETECT_RANGE + movingBonus) {
+      hider.found = true;
+      document.getElementById('found').textContent = hiders.filter(h=>h.found).length;
+    }
+  });
+}
+
+// GUHIT SA SCREEN
+function draw() {
+  // LINISIN
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  
+  // GUHIT MGA TUNAY NA GAMIT
+  props.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.strokeStyle = '#5a3810';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(p.x, p.y, p.w, p.h);
+  });
+  
+  // GUHIT MGA NAKATAGO — KUNG HINDI GUMAGALAW, KATUNOG NG TUNAY NA GAMIT!
+  hiders.forEach(hider => {
+    ctx.fillStyle = hider.found ? '#ff3333' : hider.color;
+    ctx.fillRect(hider.x, hider.y, hider.w, hider.h);
+    
+    if(hider.found || hider.isMoving) {
+      // KUNG NAHULI O GUMAGALAW — LUMALABAS ANG TAO!
+      ctx.fillStyle = hider.found ? '#ff0000' : '#ffaa00';
+      ctx.beginPath();
+      ctx.arc(hider.x + hider.w/2, hider.y - 5, 12, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(hider.name, hider.x + hider.w/2, hider.y + hider.h + 15);
+    } else {
+      ctx.strokeStyle = '#5a3810';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(hider.x, hider.y, hider.w, hider.h);
+    }
+  });
+  
+  // GUHIT ANG MANGHUHULI
+  ctx.fillStyle = seeker.color;
+  ctx.fillRect(seeker.x, seeker.y, seeker.w, seeker.h);
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(seeker.x + seeker.w/2, seeker.y - 5, 14, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('🔍 Naghahanap', seeker.x + seeker.w/2, seeker.y + seeker.h + 15);
+}
+
+// PAGTAPOS NG LARO
+function endGame(won) {
+  gameRunning = false;
+  clearInterval(timer);
+  setTimeout(() => {
+    alert(won 
+      ? '🎉 NAKITA MO SILANG LAHAT! PANALO KA!' 
+      : '⏰ UBOS NA ANG ORAS! NAGTAGO SILANG MABUTI! PANALO ANG NAGTATAGO!');
+  }, 300);
+}
+
+// SIMULAN ANG LARO
+function startGame() {
+  spawnProps();
+  initHiders();
+  seeker.x = canvas.width/2 - seeker.w/2;
+  seeker.y = 30;
+  timeLeft = GAME_DURATION;
+  gameRunning = true;
+  document.getElementById('found').textContent = '0';
+  document.getElementById('totalHiders').textContent = hiders.length;
+  document.getElementById('roleInfo').innerHTML = '<strong>🔍 Ikaw ang Manghuhuli!</strong>';
+  
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('time').textContent = timeLeft;
+    if(timeLeft <= 0) {
+      endGame(false);
+    }
+    if(hiders.every(h => h.found)) {
+      endGame(true);
+    }
+  }, 1000);
+}
+
+// IKOT NG LARO
+function loop() {
+  updateSeeker();
+  updateHiders();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.getElementById('startBtn').addEventListener('click', startGame);
+loop();
+</script>
+</body>
+</html>
