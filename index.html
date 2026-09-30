@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 Wild Bounty Showdown — Fixed Rolling</title>
+<title>🔥 Wild Bounty Showdown — With Reload</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
   :root {
@@ -26,19 +26,16 @@
   }
   .container { max-width: 680px; margin: 0 auto; }
 
-  /* === MULTIPLIER BANNER === */
   .mult-banner {
     background: linear-gradient(180deg, #B8860B 0%, #8B6508 100%);
     border: var(--borderGold);
     border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 10px; margin-bottom: 15px;
     display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;
   }
   .mult-label { font-weight: bold; margin-right: 8px; color: #FFF; }
   .mult-step {
-    background: rgba(0,0,0,0.4);
-    padding: 5px 8px; border-radius: 4px;
+    background: rgba(0,0,0,0.4); padding: 5px 8px; border-radius: 4px;
     font-weight: bold; font-size: 13px; min-width: 38px;
     border: 2px solid transparent;
   }
@@ -55,7 +52,6 @@
     to { transform: scale(1.1); }
   }
 
-  /* === REELS — TUMPAK SA 3-4-5-5-4-3 === */
   .reels-frame {
     background: linear-gradient(180deg, #905020 0%, #603010 100%);
     border: 5px solid var(--goldDim);
@@ -79,21 +75,15 @@
   .reel.r5 { height: 200px; }
   .reel.r6 { height: 150px; }
 
-  /* === TUNAY NA PAGBAGSAK MULA ITAAS === */
   .reel-viewport {
-    position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-    overflow: hidden;
+    position: absolute; width: 100%; height: 100%; top: 0; left: 0; overflow: hidden;
   }
   .reel-strip {
     position: absolute; width: 100%; top: 0; left: 0;
     transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.45, 1);
   }
-  .reel-strip.spinning {
-    transition: transform 1.2s cubic-bezier(0.17, 0.67, 0.45, 1);
-  }
-  .reel-strip.cascading {
-    transition: transform 0.6s ease-in;
-  }
+  .reel-strip.spinning { transition: transform 1.2s cubic-bezier(0.17, 0.67, 0.45, 1); }
+  .reel-strip.cascading { transition: transform 0.6s ease-in; }
   .symbol {
     height: 50px; display: flex; align-items: center; justify-content: center;
     font-size: 24px; font-weight: bold; position: relative;
@@ -101,33 +91,26 @@
   }
   .symbol:last-child { border-bottom: none; }
   .symbol.gold-frame {
-    border: var(--goldFrameBorder);
-    box-shadow: inset 0 0 10px rgba(255,215,0,0.4);
+    border: var(--goldFrameBorder); box-shadow: inset 0 0 10px rgba(255,215,0,0.4);
     background: rgba(255,215,0,0.1);
   }
   .symbol.scatter { color: var(--gold); background: rgba(255,215,0,0.15); }
   .symbol.wild { color: #FFD700; background: rgba(255,215,0,0.1); }
   .symbol.win-highlight {
-    background: rgba(255,215,0,0.25);
-    box-shadow: inset 0 0 12px rgba(255,215,0,0.4);
+    background: rgba(255,215,0,0.25); box-shadow: inset 0 0 12px rgba(255,215,0,0.4);
   }
-  .symbol.falling {
-    animation: fallIn 0.5s ease-out;
-  }
+  .symbol.falling { animation: fallIn 0.5s ease-out; }
   @keyframes fallIn {
     from { transform: translateY(-100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
-  .removing {
-    animation: explode 0.4s forwards;
-  }
+  .removing { animation: explode 0.4s forwards; }
   @keyframes explode {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.2); opacity: 0.5; background: rgba(255,215,0,0.3); }
     100% { transform: scale(0); opacity: 0; }
   }
 
-  /* === OTHERS === */
   .cascade-indicator { font-size: 13px; opacity: 0.8; margin-bottom: 8px; height: 20px; }
   .bet-panel { background: rgba(0,0,0,0.6); border-radius: 10px; padding: 15px; margin-bottom: 15px; display: none; }
   .bet-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
@@ -135,6 +118,7 @@
   .bet-val { font-weight: bold; color: var(--gold); }
   .bet-controls { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .btn-sm { padding: 4px 8px; font-size: 12px; margin-top: 5px; }
   .btn-brown { background: var(--btnBrown); color: white; }
   .btn-yellow { background: var(--btnGold); color: #2B1708; }
   .btn-green { background: linear-gradient(180deg, #32CD32 0%, #228B22 100%); color: white; }
@@ -198,10 +182,21 @@
     </div>
   </div>
 
+  <!-- ✅ STATUS BAR MAY RELOAD BUTTON NA -->
   <div class="status-bar">
-    <div class="status-col"><div class="status-label">BALANCE</div><div class="status-val" id="balance">1000.00</div></div>
-    <div class="status-col"><div class="status-label">BET</div><div class="status-val" id="betDisplay">1.00</div></div>
-    <div class="status-col"><div class="status-label">FREE SPINS</div><div class="status-val" id="fsCount">0</div></div>
+    <div class="status-col">
+      <div class="status-label">BALANCE</div>
+      <div class="status-val" id="balance">1000.00</div>
+      <button class="btn btn-brown btn-sm" onclick="reloadBalance()">🔄 Reload</button>
+    </div>
+    <div class="status-col">
+      <div class="status-label">BET</div>
+      <div class="status-val" id="betDisplay">1.00</div>
+    </div>
+    <div class="status-col">
+      <div class="status-label">FREE SPINS</div>
+      <div class="status-val" id="fsCount">0</div>
+    </div>
   </div>
 
   <button class="spin-btn" id="spinBtn" onclick="spin()">🎰 SPIN</button>
@@ -209,9 +204,6 @@
 </div>
 
 <script>
-// ==============================================
-// 🔊 SOUNDS
-// ==============================================
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 function tone(freq, dur, type='sine', vol=0.3) {
   const o = AC.createOscillator(), g = AC.createGain();
@@ -227,9 +219,6 @@ function winSound() { [523,659,784,1047].map((f,i)=>setTimeout(()=>tone(f,.25,'s
 function scatterSound() { [523,659,784,1047,1319].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.4),i*90)); }
 function bigWinSound() { [392,494,587,784,988,1175,1319].map((f,i)=>setTimeout(()=>tone(f,.35,'sine',.4),i*70)); }
 
-// ==============================================
-// 🎰 SYMBOLS
-// ==============================================
 const SYMBOLS = [
   { id: 'A', disp: 'A', payout: {3:1,4:2,5:5,6:10}, weight: 15 },
   { id: 'K', disp: 'K', payout: {3:1,4:2,5:5,6:10}, weight: 15 },
@@ -251,9 +240,6 @@ const REEL_ROWS = [3,4,5,5,4,3];
 const SYM_HEIGHT = 50;
 const BET_LEVELS = [1, 2, 5, 10, 25, 50, 100, 200, 500, 1000, 2000, 5000];
 
-// ==============================================
-// 🎮 GAME CORE
-// ==============================================
 const game = {
   balance: 1000.00,
   betIndex: 0,
@@ -278,21 +264,16 @@ const game = {
     const c = document.getElementById('reelsContainer');
     c.innerHTML = '';
     this.reelData = [];
-
     for (let r=0; r<6; r++) {
       const rows = REEL_ROWS[r];
       const reel = document.createElement('div');
       reel.className = `reel r${r+1}`;
-      
       const viewport = document.createElement('div');
       viewport.className = 'reel-viewport';
-      
       const strip = document.createElement('div');
       strip.className = 'reel-strip';
       strip.id = `strip-${r}`;
-      
       this.reelData[r] = [];
-      // ✅ Dagdag na simbolo sa itaas para sa tunay na pagbagsak
       for (let i=0; i<rows + 4; i++) {
         const sym = this.randSym();
         const isGold = (r===2 || r===3) && !sym.isScatter && !sym.isWild && Math.random() < 0.3;
@@ -306,7 +287,6 @@ const game = {
         strip.appendChild(sEl);
         this.reelData[r].push({ ...sym, goldFrame: isGold });
       }
-      
       viewport.appendChild(strip);
       reel.appendChild(viewport);
       c.appendChild(reel);
@@ -317,47 +297,39 @@ const game = {
 
   async spin() {
     if (this.isSpinning || this.isCascading) return;
-    
     const usingFS = this.freeSpins > 0;
     if (!usingFS) {
-      if (this.balance < this.totalBet) { alert('Insufficient balance!'); return; }
+      if (this.balance < this.totalBet) {
+        alert('⚠️ Insufficient balance!\nTap 🔄 Reload to continue!');
+        return;
+      }
       this.balance -= this.totalBet;
       this.currentMultiplier = 1;
     } else {
       this.freeSpins--;
       this.currentMultiplier = this.fsMultiplierStart;
     }
-    
     this.isSpinning = true;
     this.totalWin = 0;
     document.getElementById('winBar').textContent = '';
     document.getElementById('winBar').classList.remove('mega');
     document.getElementById('cascadeInfo').textContent = '';
     
-    // ✅ TUNAY NA PAG-IKOT MULA ITAAS PABABA
     spinSound();
     for (let r=0; r<6; r++) {
       const strip = document.getElementById(`strip-${r}`);
-      const rows = REEL_ROWS[r];
       const scrollAmount = (Math.floor(Math.random() * 4) + 6) * SYM_HEIGHT;
-      
-      strip.classList.remove('spinning', 'cascading');
+      strip.classList.remove('spinning','cascading');
       strip.style.transition = 'none';
       strip.style.transform = `translateY(-${scrollAmount}px)`;
       void strip.offsetHeight;
-      
       strip.classList.add('spinning');
       strip.style.transition = `transform ${1.0 + r * 0.15}s cubic-bezier(0.17, 0.67, 0.45, 1)`;
       strip.style.transform = 'translateY(0)';
-      
-      // I-refresh ang nakikitang simbolo pagkatapos huminto
       setTimeout(() => this.refreshVisibleSymbols(r), 1000 + r * 150);
     }
-    
     await new Promise(res => setTimeout(res, 1800));
     this.isSpinning = false;
-    
-    // Simulan ang cascade check
     await this.runCascades(usingFS);
   },
 
@@ -379,31 +351,21 @@ const game = {
   async runCascades(isFS) {
     let cascadeCount = 0;
     let hasWin = true;
-    
     while (hasWin && !this.isSpinning) {
       const result = this.checkWins();
       hasWin = result.hasWin;
-      
       if (!hasWin) break;
-      
       cascadeCount++;
       cascadeSound();
       document.getElementById('cascadeInfo').textContent = `Cascade ${cascadeCount} — ×${this.currentMultiplier}`;
-      
-      // ✅ PAGTANGGAL NG PANALO → PAGBAGSAK NG BAGONG SIMBOLO
       await this.removeAndFall(result.winPositions);
-      
       this.totalWin += result.payout;
       this.currentMultiplier = Math.min(this.currentMultiplier * 2, 1024);
-      
-      // Gawing Wild ang Gold Frame na kasama sa panalo
       this.transformGoldToWild(result.winPositions);
-      
       this.updateMultiplierUI();
       await new Promise(res => setTimeout(res, 600));
     }
-    
-    // Check Scatters
+
     const scatters = this.countScatters();
     if (scatters >= 3) {
       scatterSound();
@@ -411,8 +373,7 @@ const game = {
       this.freeSpins += award;
       setTimeout(() => alert(`🏜️ ${scatters} SCATTER!\n+${award} FREE SPINS!\nStarts at ×8!`), 400);
     }
-    
-    // Ipakita ang kabuuan
+
     if (this.totalWin > 0) {
       const final = this.totalWin * this.currentMultiplier;
       this.balance += final;
@@ -423,10 +384,8 @@ const game = {
       document.getElementById('winBar').innerHTML = `🎉 WIN: ₱${final.toFixed(2)} @ ×${this.currentMultiplier}`
         + (this.currentMultiplier >= 1024 ? '<br>🔥 MAX ×1024!' : '');
     }
-    
+
     this.updateUI();
-    
-    // Auto FS spin
     if (this.freeSpins > 0) {
       setTimeout(() => { if (!this.isSpinning) this.spin(); }, 1000);
     }
@@ -436,7 +395,6 @@ const game = {
     let payout = 0;
     let hasWin = false;
     const positions = [];
-    
     for (let row=0; row<5; row++) {
       let len = 0; let ref = null;
       for (let r=0; r<6; r++) {
@@ -458,43 +416,25 @@ const game = {
   },
 
   async removeAndFall(positions) {
-    // Mark for removal
     positions.forEach(([r, row]) => {
       const el = document.getElementById(`sym-${r}-${row}`);
       if (el) el.classList.add('removing');
     });
     await new Promise(res => setTimeout(res, 400));
-    
-    // ✅ TUNAY NA PAGBAGSAK — Ang mga nasa itaas ay bumababa
+
     for (let r=0; r<6; r++) {
       const rows = REEL_ROWS[r];
       const winRows = [...new Set(positions.filter(p=>p[0]===r).map(p=>p[1]))].sort((a,b)=>a-b);
-      
       if (winRows.length === 0) continue;
-      
-      // Ilipat pababa ang mga simbolong hindi natanggal
       let newState = [...this.reelData[r]];
-      
-      // Mula sa ibaba pataas — punan ang mga walang laman ng bago mula itaas
-      let empty = 0;
       for (let i = rows - 1; i >= 0; i--) {
         if (winRows.includes(i)) {
-          empty++;
-          // Maglagay ng bagong simbolo na bumababa mula itaas
-          const newSym = this.randSym();
-          const isGold = (r===2 || r===3) && !newSym.isScatter && !newSym.isWild && Math.random() < 0.3;
-          newState[i] = { ...newSym, goldFrame: isGold };
-        } else if (empty > 0) {
-          newState[i + empty] = newState[i];
           const newSym = this.randSym();
           const isGold = (r===2 || r===3) && !newSym.isScatter && !newSym.isWild && Math.random() < 0.3;
           newState[i] = { ...newSym, goldFrame: isGold };
         }
       }
-      
       this.reelData[r] = newState;
-      
-      // Ipakita na may pagbagsak
       for (let i=0; i<rows; i++) {
         const el = document.getElementById(`sym-${r}-${i}`);
         const s = this.reelData[r][i];
@@ -503,8 +443,7 @@ const game = {
         el.className = 'symbol'
           + (s.isScatter ? ' scatter' : '')
           + (s.isWild ? ' wild' : '')
-          + (s.goldFrame ? ' gold-frame' : '')
-          + (empty > 0 ? ' falling' : '');
+          + (s.goldFrame ? ' gold-frame' : '');
       }
     }
   },
@@ -553,7 +492,9 @@ const game = {
     document.getElementById('fsStatus').style.display = this.freeSpins > 0 ? 'block' : 'none';
     
     const btn = document.getElementById('spinBtn');
-    btn.disabled = this.isSpinning || (this.balance < this.totalBet && this.freeSpins === 0);
+    const canSpin = !this.isSpinning && (this.freeSpins > 0 || this.balance >= this.totalBet);
+    btn.disabled = !canSpin;
+    
     if (this.freeSpins > 0) {
       btn.textContent = `🎰 FS ×${this.currentMultiplier} (${this.freeSpins})`;
       btn.classList.add('fs-mode');
@@ -576,21 +517,40 @@ const game = {
   }
 };
 
+// ==============================================
+// 💰 RELOAD FUNCTION
+// ==============================================
+function reloadBalance() {
+  const current = game.balance;
+  if (current > 500) {
+    if (!confirm(`Current balance: ₱${current.toFixed(2)}\n\nStill want to reload to ₱1,000.00?`)) {
+      return;
+    }
+  }
+  game.balance = 1000.00;
+  localStorage.setItem('wb_bal', game.balance);
+  game.updateUI();
+  alert('✅ Balance Reloaded!\n\n₱1,000.00 added to your account!');
+}
+
 function spin() { game.spin(); }
 function changeBet(d) {
-  if (game.isSpinning || game.freeSpins > 0) { alert('Finish FS first!'); return; }
+  if (game.isSpinning || game.freeSpins > 0) { alert('Finish Free Spins first!'); return; }
   const i = game.betIndex + d;
   if (i >= 0 && i < BET_LEVELS.length) { game.betIndex = i; game.updateUI(); }
 }
 function setMaxBet() {
-  if (game.isSpinning || game.freeSpins > 0) { alert('Finish FS first!'); return; }
+  if (game.isSpinning || game.freeSpins > 0) { alert('Finish Free Spins first!'); return; }
   game.betIndex = BET_LEVELS.length - 1; game.updateUI();
 }
 function buyFeature() {
-  if (game.freeSpins > 0 || game.isSpinning) { alert('In progress!'); return; }
-  if (game.balance < game.buyCost) { alert(`Need ₱${game.buyCost.toFixed(2)}`); return; }
+  if (game.freeSpins > 0 || game.isSpinning) { alert('Finish current session first!'); return; }
+  if (game.balance < game.buyCost) {
+    alert(`⚠️ Need ₱${game.buyCost.toFixed(2)}\nTap Reload if needed!`);
+    return;
+  }
   game.balance -= game.buyCost; game.freeSpins += 10;
-  alert('🎁 10 FREE SPINS! Start ×8!');
+  alert('🎁 Bonus Buy Activated!\n10 FREE SPINS added!\nStarts at ×8 Multiplier!');
   toggleBetPanel(); game.updateUI();
 }
 function toggleBetPanel() {
