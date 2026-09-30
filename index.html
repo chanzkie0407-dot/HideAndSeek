@@ -3,138 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 Wild Bounty Showdown — Corrected</title>
+<title>🔥 Wild Bounty Showdown — Exact Match</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Georgia', serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
   :root {
-    --woodDark: #5C3A1E;
-    --woodMed: #8B5A2B;
-    --woodLight: #D49647;
-    --gold: #FFD700;
-    --goldDim: #C89600;
-    --goldBright: #FFEC00;
-    --bgWestern: linear-gradient(180deg, #2B1708 0%, #1A0F05 100%);
-    --reelBg: linear-gradient(180deg, #4A2E1A 0%, #301E10 100%);
-    --symbolBg: #241408;
-    --btnGold: linear-gradient(180deg, #FFD700 0%, #C89600 100%);
-    --btnBrown: linear-gradient(180deg, #8B5A2B 0%, #5C3A1E 100%);
+    --bgMain: linear-gradient(180deg, #2B1708 0%, #1A0F05 100%);
+    --reelBg: linear-gradient(180deg, #5C3A1E 0%, #3A2414 100%);
+    --goldFrame: linear-gradient(135deg, #FFD700 0%, #E6B800 50%, #CC9900 100%);
+    --goldText: #FFD700;
+    --goldDim: #B8860B;
+    --woodDark: #3A2414;
+    --woodMed: #6B4422;
+    --textLight: #F5DEB3;
+    --textDim: #C8B896;
+    --btnYellow: linear-gradient(180deg, #FFD300 0%, #E6B000 100%);
+    --btnDark: linear-gradient(180deg, #8B5A2B 0%, #5C3A1E 100%);
   }
   body {
-    background: var(--bgWestern);
+    background: var(--bgMain);
     min-height: 100vh;
-    color: #F5DEB3;
-    padding: 15px;
+    color: var(--textLight);
+    padding: 10px;
     text-align: center;
   }
-  .container { max-width: 560px; margin: 0 auto; }
+  .container { max-width: 640px; margin: 0 auto; }
 
-  /* === TOP MULTIPLIER BANNER === */
+  /* === LOADING SCREEN === */
+  .loading-screen {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(180deg, #FFB347 0%, #8B4513 100%);
+    z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .loading-title { font-size: 42px; font-weight: bold; color: var(--goldText); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 20px; }
+  .loading-bar { width: 280px; height: 12px; background: rgba(0,0,0,0.4); border-radius: 6px; overflow: hidden; margin: 10px 0; }
+  .loading-fill { height: 100%; background: var(--goldText); width: 0%; transition: width 0.3s; }
+  .loading-text { font-size: 14px; opacity: 0.8; margin-top: 10px; }
+
+  /* === MULTIPLIER BANNER — TUMPAK SA ITAAS === */
   .mult-banner {
     background: linear-gradient(180deg, #A06020 0%, #704010 100%);
     border: 3px solid var(--goldDim);
     border-radius: 12px;
-    padding: 12px 15px;
-    margin-bottom: 12px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-  }
-  .mult-steps {
-    display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex; justify-content: center; gap: 4px; flex-wrap: wrap;
   }
   .mult-step {
     background: rgba(0,0,0,0.4);
-    padding: 5px 10px;
-    border-radius: 20px;
+    padding: 4px 8px;
+    border-radius: 4px;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
     border: 2px solid transparent;
-    transition: all 0.3s;
+    min-width: 42px;
+    text-align: center;
   }
   .mult-step.active {
-    background: linear-gradient(180deg, #FFD700 0%, #E6B000 100%);
+    background: var(--goldFrame);
     color: #2B1708;
     border-color: #FFF8DC;
-    box-shadow: 0 0 12px gold;
-    transform: scale(1.1);
+    box-shadow: 0 0 8px gold;
   }
   .mult-step.maxed {
-    background: linear-gradient(180deg, #FFEC00 0%, #FFB300 100%);
-    box-shadow: 0 0 20px gold, 0 0 30px rgba(255,215,0,0.5);
+    box-shadow: 0 0 15px gold, 0 0 25px rgba(255,215,0,0.5);
     animation: pulseMax 0.8s infinite alternate;
   }
   @keyframes pulseMax {
     from { transform: scale(1.05); }
-    to { transform: scale(1.15); }
+    to { transform: scale(1.1); }
   }
-  .mult-note { font-size: 12px; opacity: 0.7; margin-top: 8px; }
+  .ways-label { font-size: 12px; color: var(--goldText); opacity: 0.9; margin-bottom: 6px; }
 
-  /* === REEL FRAME — NO EMPTY SPACE === */
-  .slot-frame {
+  /* === REEL AREA — TUMPAK NA SUKAT === */
+  .reels-frame {
     background: linear-gradient(180deg, #905020 0%, #603010 100%);
-    border: 4px solid var(--goldDim);
-    border-radius: 16px;
-    padding: 15px;
-    box-shadow: 0 0 25px rgba(255,200,0,0.2), inset 0 0 20px rgba(0,0,0,0.6);
-    margin-bottom: 12px;
-  }
-  .ways-label {
-    font-size: 13px; opacity: 0.7; margin-bottom: 8px;
+    border: 5px solid var(--goldDim);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 0 30px rgba(255,200,0,0.25), inset 0 0 20px rgba(0,0,0,0.6);
+    margin-bottom: 10px;
   }
   .reels-container {
-    display: flex; gap: 6px; background: var(--reelBg);
-    padding: 8px; border-radius: 10px; overflow: hidden;
+    display: flex; gap: 5px; background: var(--reelBg);
+    padding: 6px; border-radius: 8px; overflow: hidden;
   }
   .reel {
-    flex: 1; height: 144px; background: var(--symbolBg);
-    border-radius: 6px; overflow: hidden; position: relative;
+    flex: 1; height: 150px; background: #241408;
+    border-radius: 4px; overflow: hidden; position: relative;
     border: 2px solid #6B4020;
   }
   .reel-inner {
-    position: absolute; width: 100%;
-    top: 0; left: 0;
+    position: absolute; width: 100%; top: 0; left: 0;
   }
   .symbol {
-    height: 48px; display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: bold;
-    border-bottom: 1px solid #402818;
+    height: 50px; display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: bold; position: relative;
     transition: all 0.2s;
   }
-  .symbol:last-child { border-bottom: none; }
+  .symbol.gold-frame {
+    border: 3px solid var(--goldText);
+    box-shadow: inset 0 0 8px rgba(255,215,0,0.4), 0 0 6px rgba(255,215,0,0.3);
+    background: rgba(255,215,0,0.1);
+  }
   .symbol.scatter { color: #FFD700; background: rgba(255,215,0,0.15); }
   .symbol.wild { color: #FFD700; background: rgba(255,215,0,0.1); }
   .symbol.win-highlight {
     background: rgba(255,215,0,0.25);
-    box-shadow: inset 0 0 15px rgba(255,215,0,0.4);
+    box-shadow: inset 0 0 12px rgba(255,215,0,0.4);
   }
 
-  /* === BOTTOM INFO BAR === */
-  .info-bar {
+  /* === BET PANEL — TUMPAK SA TOTOONG LARO === */
+  .bet-panel {
+    background: rgba(0,0,0,0.6);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .bet-row { display: flex; justify-content: space-between; align-items: center; margin: 6px 0; }
+  .bet-label { font-size: 12px; color: var(--textDim); }
+  .bet-val { font-weight: bold; font-size: 15px; }
+  .bet-controls { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
+  .bet-btn {
+    padding: 8px 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+    font-size: 14px;
+  }
+  .btn-minus { background: var(--btnDark); color: white; }
+  .btn-plus { background: var(--btnDark); color: white; }
+  .btn-max { background: var(--btnDark); color: white; padding: 8px 18px; }
+  .btn-confirm { background: var(--btnYellow); color: #2B1708; padding: 8px 24px; font-weight: bold; }
+
+  /* === STATUS BAR === */
+  .status-bar {
     display: flex; justify-content: space-between;
     background: rgba(0,0,0,0.5);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 10px 12px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     font-size: 13px;
   }
-  .info-col { text-align: center; }
-  .info-label { opacity: 0.6; font-size: 11px; }
-  .info-val { font-weight: bold; font-size: 16px; }
+  .status-col { text-align: center; }
+  .status-label { opacity: 0.6; font-size: 11px; }
+  .status-val { font-weight: bold; font-size: 16px; }
   .win-bar {
     background: rgba(255,215,0,0.15);
     border-radius: 8px;
     padding: 10px;
-    margin-bottom: 12px;
-    font-size: 20px; font-weight: bold; color: var(--gold);
-    min-height: 45px;
+    margin-bottom: 10px;
+    font-size: 18px; font-weight: bold; color: var(--goldText);
+    min-height: 44px;
     text-shadow: 0 0 8px rgba(255,215,0,0.5);
   }
   .win-bar.mega {
-    font-size: 24px;
+    font-size: 22px;
     background: rgba(255,215,0,0.25);
     box-shadow: 0 0 15px rgba(255,215,0,0.3);
   }
   .fs-status {
     background: rgba(50,205,50,0.15);
-    border-radius: 8px; padding: 10px; margin-bottom: 12px;
+    border-radius: 8px; padding: 8px; margin-bottom: 10px;
     color: #90EE90; font-weight: bold; display: none;
   }
   .fs-status.auto-active {
@@ -142,8 +169,8 @@
     border: 2px solid #32CD32;
   }
 
-  /* === CONTROLS === */
-  .controls { display: flex; gap: 10px; }
+  /* === MAIN CONTROLS === */
+  .main-controls { display: flex; gap: 10px; }
   .btn {
     flex: 1; padding: 14px; border: none; border-radius: 10px;
     font-size: 16px; font-weight: bold; cursor: pointer;
@@ -152,35 +179,41 @@
   }
   .btn:active { transform: scale(0.95); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-spin { background: var(--btnGold); font-size: 20px; }
+  .btn-spin { background: var(--btnYellow); font-size: 20px; }
   .btn-fs { background: linear-gradient(180deg, #32CD32 0%, #228B22 100%); color: white; display: none; }
-  .btn-min, .btn-plus { flex: 0 0 50px; padding: 14px; background: var(--btnBrown); color: white; }
+  .btn-bet { flex: 0 0 80px; background: var(--btnDark); color: white; }
 </style>
 </head>
 <body>
-<div class="container">
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-title">WILD BOUNTY SHOWDOWN</div>
+  <div class="loading-bar"><div class="loading-fill" id="loadFill"></div></div>
+  <div class="loading-text" id="loadText">Loading [0%]</div>
+  <div style="margin-top: 20px; font-size: 13px; opacity: 0.7;">Turn off idle pages, give me more resources!</div>
+</div>
+
+<div class="container" id="mainContent" style="display:none;">
 
   <!-- MULTIPLIER BANNER -->
   <div class="mult-banner">
-    <div class="mult-steps" id="multSteps">
-      <div class="mult-step active" data-level="0">×1</div>
-      <div class="mult-step" data-level="1">×2</div>
-      <div class="mult-step" data-level="2">×4</div>
-      <div class="mult-step" data-level="3">×8</div>
-      <div class="mult-step" data-level="4">×16</div>
-      <div class="mult-step" data-level="5">×32</div>
-      <div class="mult-step" data-level="6">×64</div>
-      <div class="mult-step" data-level="7">×128</div>
-      <div class="mult-step" data-level="8">×256</div>
-      <div class="mult-step" data-level="9">×512</div>
-      <div class="mult-step" data-level="10">×1024</div>
-    </div>
-    <div class="mult-note">🔥 Multiplier DOUBLES after every win — Max ×1024! Resets on non-win</div>
+    <span style="margin-right: 8px; font-weight:bold; color:var(--goldText);">3600 WAYS</span>
+    <div class="mult-step" data-level="0">×1</div>
+    <div class="mult-step" data-level="1">×2</div>
+    <div class="mult-step" data-level="2">×4</div>
+    <div class="mult-step" data-level="3">×8</div>
+    <div class="mult-step" data-level="4">×16</div>
+    <div class="mult-step" data-level="5">×32</div>
+    <div class="mult-step" data-level="6">×64</div>
+    <div class="mult-step" data-level="7">×128</div>
+    <div class="mult-step" data-level="8">×256</div>
+    <div class="mult-step" data-level="9">×512</div>
+    <div class="mult-step" data-level="10">×1024</div>
   </div>
 
-  <!-- SLOT FRAME -->
-  <div class="slot-frame">
-    <div class="ways-label">3600 Ways to Win</div>
+  <!-- REELS FRAME -->
+  <div class="reels-frame">
     <div class="reels-container" id="reelsContainer"></div>
   </div>
 
@@ -192,28 +225,54 @@
   <!-- WIN BAR -->
   <div class="win-bar" id="winBar"></div>
 
-  <!-- INFO BAR -->
-  <div class="info-bar">
-    <div class="info-col">
-      <div class="info-label">BALANCE</div>
-      <div class="info-val" id="balance">1000.00</div>
+  <!-- BET PANEL — TUMPAK SA TOTOONG TALAAN -->
+  <div class="bet-panel" id="betPanel" style="display:block;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold;">
+      <span>Bet Options</span>
+      <span style="cursor:pointer; color:#FFD700;" onclick="toggleBetPanel()">✕</span>
     </div>
-    <div class="info-col">
-      <div class="info-label">BET</div>
-      <div class="info-val" id="betVal">1.20</div>
+    <div class="bet-row">
+      <span class="bet-label">Bet Size</span>
+      <span class="bet-label">Bet Level</span>
+      <span class="bet-label">Base Bet</span>
+      <span class="bet-label">Bet Amount</span>
     </div>
-    <div class="info-col">
-      <div class="info-label">FREE SPINS</div>
-      <div class="info-val" id="fsCount">0</div>
+    <div class="bet-row">
+      <span id="betSize">₱0.05</span>
+      <span id="betLevel">×1</span>
+      <span id="baseBet">₱1.00</span>
+      <span class="bet-val" id="totalBet">₱1.00</span>
+    </div>
+    <div class="bet-controls">
+      <button class="bet-btn btn-minus" onclick="changeLevel(-1)">−</button>
+      <button class="bet-btn btn-max" onclick="setMaxBet()">Max Bet</button>
+      <button class="bet-btn btn-confirm" onclick="confirmBet()">Confirm</button>
+      <button class="bet-btn btn-plus" onclick="changeLevel(+1)">+</button>
+    </div>
+  </div>
+  <button style="margin-bottom:10px; padding:6px 12px; background:#5C3A1E; color:white; border:none; border-radius:4px; cursor:pointer;" onclick="toggleBetPanel()">⚙️ Bet Settings</button>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-col">
+      <div class="status-label">BALANCE</div>
+      <div class="status-val" id="balance">1000.00</div>
+    </div>
+    <div class="status-col">
+      <div class="status-label">BET</div>
+      <div class="status-val" id="betDisplay">1.00</div>
+    </div>
+    <div class="status-col">
+      <div class="status-label">FREE SPINS</div>
+      <div class="status-val" id="fsCount">0</div>
     </div>
   </div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <button class="btn btn-min" onclick="changeBet(-0.20)">−</button>
-    <button class="btn-spin" id="spinBtn" onclick="spin()">🎰 SPIN</button>
-    <button class="btn-plus" onclick="changeBet(+0.20)">+</button>
-    <button class="btn-fs" id="fsBtn" onclick="startAutoFreeSpin()">🎁 AUTO FS</button>
+  <!-- MAIN CONTROLS -->
+  <div class="main-controls">
+    <button class="btn btn-bet" onclick="toggleBetPanel()">⚙️</button>
+    <button class="btn btn-spin" id="spinBtn" onclick="spin()">🎰 SPIN</button>
+    <button class="btn btn-fs" id="fsBtn" onclick="startAutoFreeSpin()">🎁 AUTO FS</button>
   </div>
 
 </div>
@@ -233,25 +292,22 @@ function tone(freq, dur, type='sine', vol=0.3) {
 }
 function spinSound() { tone(200,.1,'tri',.2); setTimeout(()=>tone(300,.08),80); setTimeout(()=>tone(400,.08),160); }
 function winSound() { [523,659,784,1047].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.3),i*110)); }
-function bigWinSound() { [392,494,587,784,988,1175,1319].map((f,i)=>setTimeout(()=>tone(f,.35,'sine',.4),i*80)); }
-function megaWinSound() { [262,330,392,523,659,784,1047,1319,1568].map((f,i)=>setTimeout(()=>tone(f,.4,'sine',.5),i*70)); }
 function scatterSound() { [523,659,784,1047,1319].map((f,i)=>setTimeout(()=>tone(f,.3,'sine',.4),i*100)); }
 
 // ==============================================
-// 🎰 SYMBOLS — NORMAL SCATTER RATE
+// 🎰 SYMBOLS — TUMPAK SA TOTOONG LARO
 // ==============================================
 const SYMBOLS = [
-  { id: 'A', disp: 'A', payout: 25, weight: 12 },
-  { id: 'K', disp: 'K', payout: 20, weight: 12 },
-  { id: 'Q', disp: 'Q', payout: 15, weight: 12 },
-  { id: 'J', disp: 'J', payout: 12, weight: 12 },
-  { id: '10', disp: '10', payout: 10, weight: 12 },
-  { id: '9', disp: '9', payout: 8, weight: 12 },
-  { id: 'bottle', disp: '🍾', payout: 30, weight: 8 },
-  { id: 'hat', disp: '🤠', payout: 35, weight: 8 },
-  { id: 'gun', disp: '🔫', payout: 40, weight: 6 },
-  { id: 'badge', disp: '⭐', payout: 50, weight: 6 },
-  { id: 'WILD', disp: '💎', payout: 0, isWild: true, weight: 4 },
+  { id: 'Q', disp: 'Q', payout: 8, weight: 15 },
+  { id: 'K', disp: 'K', payout: 10, weight: 15 },
+  { id: 'J', disp: 'J', payout: 7, weight: 15 },
+  { id: 'A', disp: 'A', payout: 12, weight: 12 },
+  { id: '10', disp: '10', payout: 6, weight: 12 },
+  { id: 'hat', disp: '🤠', payout: 25, weight: 8 },
+  { id: 'gun', disp: '🔫', payout: 30, weight: 7 },
+  { id: 'bottle', disp: '🍾', payout: 35, weight: 6 },
+  { id: 'scarf', disp: '🎭', payout: 40, weight: 5 },
+  { id: 'WILD', disp: '💎', payout: 0, isWild: true, weight: 3 },
   { id: 'SCATTER', disp: '🏜️', payout: 0, isScatter: true, weight: 2 } // ✅ NORMAL — bihira lumabas
 ];
 
@@ -261,24 +317,56 @@ SYMBOLS.forEach(sym => {
   for(let i=0; i<sym.weight; i++) weightedPool.push(sym);
 });
 
+// ==============================================
+// 🎮 BET SYSTEM — TUMPAK SA TOTOONG HALAGA
+// ==============================================
+const BET_SIZES = [0.05, 0.50, 5.00, 25.00];
+const LEVEL_MULTIPLIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const BASE_MULTIPLIER = 20; // nakalagay sa larawan
+
 const game = {
   balance: 1000.00,
-  bet: 1.20,
+  betSizeIndex: 0, // 0 = ₱0.05, 1 = ₱0.50, 2 = ₱5.00, 3 = ₱25.00
+  levelIndex: 0,   // 0 = ×1, hanggang 9 = ×10
   freeSpins: 0,
   streak: 0,
   isSpinning: false,
   isAutoFS: false,
   reelCount: 5,
   rows: 3,
-  symbolHeight: 48,
+  symbolHeight: 50,
   MAX_STREAK: 10,
 
+  get betSize() { return BET_SIZES[this.betSizeIndex]; },
+  get levelMult() { return LEVEL_MULTIPLIERS[this.levelIndex]; },
+  get baseBet() { return this.betSize * this.levelMult; },
+  get totalBet() { return this.baseBet * BASE_MULTIPLIER; },
   get multiplier() { return Math.pow(2, Math.min(this.streak, this.MAX_STREAK)); },
 
   init() {
     this.load();
     this.buildReels();
     this.updateUI();
+    this.simulateLoading();
+  },
+
+  simulateLoading() {
+    let pct = 0;
+    const fill = document.getElementById('loadFill');
+    const txt = document.getElementById('loadText');
+    const interval = setInterval(() => {
+      pct += Math.floor(Math.random() * 8) + 2;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(interval);
+        setTimeout(() => {
+          document.getElementById('loadingScreen').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+        }, 500);
+      }
+      fill.style.width = pct + '%';
+      txt.textContent = `Loading [${pct}%]`;
+    }, 150);
   },
 
   buildReels() {
@@ -289,8 +377,8 @@ const game = {
       reel.className = 'reel'; reel.id = `reel-${r}`;
       const inner = document.createElement('div');
       inner.className = 'reel-inner'; inner.id = `inner-${r}`;
-      // ✅ ENOUGH SYMBOLS — NO BLANK SPACE EVER
-      for (let i=0; i<this.rows+8; i++) {
+      // ✅ Sapat na simbolo — WALANG BAKANTE KAILANMAN
+      for (let i=0; i<this.rows+6; i++) {
         const s = document.createElement('div');
         s.className = 'symbol'; s.id = `s-${r}-${i}`;
         const sym = this.randSym();
@@ -312,8 +400,8 @@ const game = {
     if (this.isSpinning) return;
     const usingFS = this.freeSpins > 0;
     if (!usingFS) {
-      if (this.balance < this.bet) { alert('Insufficient balance!'); return; }
-      this.balance -= this.bet;
+      if (this.balance < this.totalBet) { alert('Insufficient balance!'); return; }
+      this.balance -= this.totalBet;
     } else {
       this.freeSpins--;
     }
@@ -331,39 +419,28 @@ const game = {
       }
     }
 
-    // ✅ PREPARE: insert new symbols at bottom so they scroll UPWARD = visually DOWN
-    // Shift existing symbols, add new ones at end
+    // ✅ PABABA NA GALAW — mula itaas, bababa, walang bakante
     for (let r=0; r<this.reelCount; r++) {
       const inner = document.getElementById(`inner-${r}`);
-      const totalSlots = this.rows + 8;
+      const shift = (Math.floor(Math.random() * 4) + 3) * this.symbolHeight;
       
-      // Shift all symbols UP so new ones come from below
+      // Simula sa itaas sa labas ng tanawin
       inner.style.transition = 'none';
-      inner.style.transform = 'translateY(0)';
+      inner.style.transform = `translateY(-${shift}px)`;
       void inner.offsetHeight;
-
-      // Fill visible area immediately with new result
+      
+      // Punuin agad ang bagong resulta sa nakikitang bahagi
       for (let i=0; i<this.rows; i++) {
         const sym = result[r][i];
         const el = document.getElementById(`s-${r}-${i}`);
         el.textContent = sym.disp;
         el.className = 'symbol'
           + (sym.isScatter ? ' scatter' : '')
-          + (sym.isWild ? ' wild' : '');
+          + (sym.isWild ? ' wild' : '')
+          + (Math.random() < 0.25 ? ' gold-frame' : ''); // 25% gintong balangkas
       }
-    }
-
-    // ✅ SCROLL ANIMATION — symbols come from ABOVE going DOWN
-    for (let r=0; r<this.reelCount; r++) {
-      const shiftAmount = (Math.floor(Math.random() * 4) + 3) * this.symbolHeight;
-      const inner = document.getElementById(`inner-${r}`);
       
-      // Start position: shifted UP so content above viewport comes in
-      inner.style.transition = 'none';
-      inner.style.transform = `translateY(-${shiftAmount}px)`;
-      void inner.offsetHeight;
-      
-      // Animate DOWN to resting position
+      // Bumaba nang dahan-dahan — animasyon
       setTimeout(() => {
         inner.style.transition = `transform ${1.0 + r * 0.2}s cubic-bezier(0.25, 0.8, 0.45, 1)`;
         inner.style.transform = 'translateY(0)';
@@ -377,7 +454,7 @@ const game = {
   },
 
   evaluate(reels, isFS) {
-    // Count Scatters
+    // Bilangin ang Scatter
     let scatterCount = 0;
     for (let r=0; r<this.reelCount; r++) {
       for (let i=0; i<this.rows; i++) {
@@ -385,7 +462,7 @@ const game = {
       }
     }
 
-    // 🎁 FREE SPINS — normal rate
+    // 🎁 FREE SPINS
     if (scatterCount >= 3) {
       let fsAward = 0;
       if (scatterCount === 3) fsAward = 10;
@@ -396,7 +473,7 @@ const game = {
       setTimeout(() => alert(`🏜️ ${scatterCount} SCATTER = ${fsAward} FREE SPINS!`), 400);
     }
 
-    // Calculate wins
+    // Suriin ang panalo — 3600 Ways
     let totalWin = 0;
     for (let row=0; row<this.rows; row++) {
       let matchLen = 0;
@@ -409,7 +486,7 @@ const game = {
         else break;
       }
       if (matchLen >= 3 && refSym) {
-        const payout = refSym.payout * this.bet / 10 * matchLen;
+        const payout = refSym.payout * this.totalBet / 10 * matchLen;
         totalWin += payout;
         for (let r=0; r<matchLen; r++) {
           document.getElementById(`s-${r}-${row}`).classList.add('win-highlight');
@@ -423,13 +500,12 @@ const game = {
       const finalWin = totalWin * mult;
       this.balance += finalWin;
 
-      if (mult >= 128) megaWinSound();
-      else if (mult >= 16) bigWinSound();
-      else winSound();
+      if (mult >= 128) {
+        document.getElementById('winBar').classList.add('mega');
+        setTimeout(() => { [262,330,392,523,659,784,1047,1319].map((f,i)=>setTimeout(()=>tone(f,.4,'sine',.5),i*70)); }, 0);
+      } else winSound();
 
-      const winBar = document.getElementById('winBar');
-      if (mult >= 128) winBar.classList.add('mega');
-      winBar.innerHTML = `🎉 WIN: ${finalWin.toFixed(2)} ${mult>1 ? ' @ ×'+mult : ''}`
+      document.getElementById('winBar').innerHTML = `🎉 WIN: ₱${finalWin.toFixed(2)} ${mult>1 ? ' @ ×'+mult : ''}`
         + (mult >= 1024 ? '<br>🔥🔥 MAX MULTIPLIER ×1024! 🔥🔥' : '');
     } else {
       this.streak = 0;
@@ -438,7 +514,7 @@ const game = {
     this.updateMultiplierUI();
     this.updateUI();
 
-    // ✅ AUTO FREE SPIN — continues automatically
+    // ✅ AUTO FREE SPIN — magpatuloy hanggang maubos
     if (this.isAutoFS && this.freeSpins > 0) {
       setTimeout(() => {
         if (this.isAutoFS && this.freeSpins > 0 && !this.isSpinning) {
@@ -465,9 +541,16 @@ const game = {
 
   updateUI() {
     document.getElementById('balance').textContent = this.balance.toFixed(2);
-    document.getElementById('betVal').textContent = this.bet.toFixed(2);
+    document.getElementById('betDisplay').textContent = this.totalBet.toFixed(2);
     document.getElementById('fsCount').textContent = this.freeSpins;
     document.getElementById('fsRemain').textContent = this.freeSpins;
+    
+    // Bet panel — tumpak na halaga
+    document.getElementById('betSize').textContent = '₱' + this.betSize.toFixed(2);
+    document.getElementById('betLevel').textContent = '×' + this.levelMult;
+    document.getElementById('baseBet').textContent = '₱' + this.baseBet.toFixed(2);
+    document.getElementById('totalBet').textContent = '₱' + this.totalBet.toFixed(2);
+    
     document.getElementById('fsStatus').style.display = this.freeSpins > 0 ? 'block' : 'none';
     document.getElementById('fsBtn').style.display = this.freeSpins > 0 && !this.isAutoFS ? 'inline-block' : 'none';
     document.getElementById('spinBtn').disabled = this.isSpinning;
@@ -476,13 +559,15 @@ const game = {
 
   save() {
     localStorage.setItem('wb_bal', this.balance);
-    localStorage.setItem('wb_bet', this.bet);
+    localStorage.setItem('wb_betSize', this.betSizeIndex);
+    localStorage.setItem('wb_level', this.levelIndex);
     localStorage.setItem('wb_fs', this.freeSpins);
     localStorage.setItem('wb_streak', this.streak);
   },
   load() {
     this.balance = parseFloat(localStorage.getItem('wb_bal')) || 1000.00;
-    this.bet = parseFloat(localStorage.getItem('wb_bet')) || 1.20;
+    this.betSizeIndex = parseInt(localStorage.getItem('wb_betSize')) || 0;
+    this.levelIndex = parseInt(localStorage.getItem('wb_level')) || 0;
     this.freeSpins = parseInt(localStorage.getItem('wb_fs')) || 0;
     this.streak = parseInt(localStorage.getItem('wb_streak')) || 0;
     this.updateMultiplierUI();
@@ -507,10 +592,29 @@ function startAutoFreeSpin() {
   game.spinReels();
 }
 
-function changeBet(amt) {
+function changeLevel(delta) {
   if (game.isSpinning || game.isAutoFS) return;
-  game.bet = Math.max(0.20, Math.min(10.00, game.bet + amt));
+  let newLevel = game.levelIndex + delta;
+  if (newLevel >= 0 && newLevel < LEVEL_MULTIPLIERS.length) {
+    game.levelIndex = newLevel;
+    game.updateUI();
+  }
+}
+
+function setMaxBet() {
+  if (game.isSpinning || game.isAutoFS) return;
+  game.betSizeIndex = BET_SIZES.length - 1;
+  game.levelIndex = LEVEL_MULTIPLIERS.length - 1;
   game.updateUI();
+}
+
+function confirmBet() {
+  toggleBetPanel();
+}
+
+function toggleBetPanel() {
+  const p = document.getElementById('betPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
 }
 
 function resetHighlights() {
